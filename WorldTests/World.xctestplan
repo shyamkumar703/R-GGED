@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "F9C8B4DC-5950-4127-A409-3D01D7E4049C",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : false
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:R!GGED.xcodeproj",
+        "identifier" : "01C2A6FF2A4F5C71004F701D",
+        "name" : "WorldTests"
+      }
+    }
+  ],
+  "version" : 1
+}
