@@ -105,7 +105,7 @@ public struct Game {
         }
     }
     
-    public mutating func makeCall(call: Pitch.Call, on pitch: Pitch) {
+    public mutating func makeCall(call: Pitch.Call, on pitch: Pitch? = nil) {
         switch call {
         case .strike:
             currentStrikes += 1
@@ -191,8 +191,10 @@ extension Game {
             handleGroundOut()
         case .flyOut:
             handleFlyOut()
-        default:
-            return
+        case .foul:
+            currentStrikes = min(currentStrikes + 1, 2)
+        case .swingAndMiss:
+            makeCall(call: .strike)
         }
     }
     
@@ -540,6 +542,20 @@ extension Game {
             firstBase: first,
             secondBase: second,
             thirdBase: third,
+            batterResult: batterResult
+        )
+    }
+    
+    static func mockWith(
+        balls: Int,
+        strikes: Int,
+        batterResult: @escaping (Pitch, Player) -> Pitch.BatterResult? = { _, _ in nil }
+    ) -> Self {
+        .init(
+            homeTeam: .empty,
+            awayTeam: .empty,
+            currentBalls: balls,
+            currentStrikes: strikes,
             batterResult: batterResult
         )
     }

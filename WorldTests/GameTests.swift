@@ -378,17 +378,70 @@ final class GameTests: XCTestCase {
         
         XCTAssertEqual(sut.awayTeamScore, 4)
     }
-//    func testMakingCorrectCall_IncreasesUmpireGrade() {
-//        var sut: Game = .mock(generateRandomPitch: { .init(x: 0, y: 0 ) })
-//        let startUmpireGrade = sut.umpireGame.umpireGrade
-//        sut.makeCall(call: .strike, on: sut.generatePitch())
-//        XCTAssertGreaterThan(sut.umpireGame.umpireGrade, startUmpireGrade)
-//    }
-//
-//    func testMakingIncorrectCall_DecreasesUmpireGrade() {
-//        var sut: Game = .mock(generateRandomPitch: { .init(x: 0, y: 0 ) })
-//        let startUmpireGrade = sut.umpireGame.umpireGrade
-//        sut.makeCall(call: .ball, on: sut.generatePitch())
-//        XCTAssertLessThan(sut.umpireGame.umpireGrade, startUmpireGrade)
-//    }
+    
+    func testFoul_OneStrike_StrikesIncreaseToTwo() {
+        var sut: Game = .mockWith(balls: 0, strikes: 1) { _, _ in .foul }
+        
+        guard case .noCall(let batterResult) = sut.generatePitch() else {
+            XCTFail()
+            return
+        }
+        
+        guard batterResult == .foul else {
+            XCTFail()
+            return
+        }
+        
+        XCTAssertEqual(sut.currentStrikes, 2)
+    }
+    
+    func testFoul_TwoStrikes_StrikesStayAtTwo() {
+        var sut: Game = .mockWith(balls: 0, strikes: 2) { _, _ in .foul }
+        
+        guard case .noCall(let batterResult) = sut.generatePitch() else {
+            XCTFail()
+            return
+        }
+        
+        guard batterResult == .foul else {
+            XCTFail()
+            return
+        }
+        
+        XCTAssertEqual(sut.currentStrikes, 2)
+    }
+    
+    func testSwingAndMiss_OneStrike_StrikesIncreaseToTwo() {
+        var sut: Game = .mockWith(balls: 0, strikes: 1) { _, _ in .swingAndMiss }
+        
+        guard case .noCall(let batterResult) = sut.generatePitch() else {
+            XCTFail()
+            return
+        }
+        
+        guard batterResult == .swingAndMiss else {
+            XCTFail()
+            return
+        }
+        
+        XCTAssertEqual(sut.currentStrikes, 2)
+    }
+    
+    func testSwingAndMiss_TwoStrikes_BatterIsOut() {
+        var sut: Game = .mockWith(balls: 0, strikes: 2) { _, _ in .swingAndMiss }
+        
+        guard case .noCall(let batterResult) = sut.generatePitch() else {
+            XCTFail()
+            return
+        }
+        
+        guard batterResult == .swingAndMiss else {
+            XCTFail()
+            return
+        }
+        
+        XCTAssertEqual(sut.currentStrikes, 0)
+        XCTAssertEqual(sut.currentBalls, 0)
+        XCTAssertEqual(sut.outs, 1)
+    }
 }
