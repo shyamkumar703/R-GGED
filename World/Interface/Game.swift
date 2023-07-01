@@ -47,6 +47,8 @@ public struct Game {
     }
     
     private var generateRandomPitch: () -> Pitch
+    private var batterResult: (Pitch, Player) -> Pitch.BatterResult?
+    
     private var homeTeamBattingOrder: NonEmptyCircularArray<Player>
     private var awayTeamBattingOrder: NonEmptyCircularArray<Player>
     private var homeTeamPitcher: Player
@@ -66,7 +68,8 @@ public struct Game {
         currentBalls: Int = 0,
         currentStrikes: Int = 0,
         umpireGame: UmpireGame = .new,
-        generateRandomPitch: @escaping () -> Pitch
+        generateRandomPitch: @escaping () -> Pitch = generateRandomPitchLive,
+        batterResult: @escaping (Pitch, Player) -> Pitch.BatterResult? = batterResultLive
     ) {
         self.homeTeam = homeTeam
         self.awayTeam = awayTeam
@@ -82,6 +85,7 @@ public struct Game {
         self.currentStrikes = currentStrikes
         self.umpireGame = umpireGame
         self.generateRandomPitch = generateRandomPitch
+        self.batterResult = batterResult
         
         self.homeTeamBattingOrder = .init(homeTeam.battingOrder)
         self.awayTeamBattingOrder = .init(awayTeam.battingOrder)
@@ -90,9 +94,15 @@ public struct Game {
         self.awayTeamPitcher = self.awayTeam.pitchingRotation.getFirst()
     }
     
-    public mutating func generatePitch() -> Pitch {
+    public mutating func generatePitch() -> Pitch.PitchResult {
         incrementPitchCount()
-        return generateRandomPitch()
+        let pitch = generateRandomPitch()
+        if let batterResult = batterResult(pitch, currentBatter) {
+            handle(batterResult: batterResult)
+            return .noCall(batterResult)
+        } else {
+            return .call(pitch)
+        }
     }
     
     public mutating func makeCall(call: Pitch.Call, on pitch: Pitch) {
@@ -104,7 +114,7 @@ public struct Game {
         }
         
         if currentStrikes == 3 {
-            recordOut()
+            incrementOuts()
         } else if currentBalls == 4 {
             executeWalk()
         }
@@ -113,8 +123,186 @@ public struct Game {
 
 // MARK: - Utility functions
 extension Game {
-    private mutating func recordOut() {
-        outs += 1
+    private mutating func handle(batterResult: Pitch.BatterResult) {
+        switch batterResult {
+        case .single:
+            if self.thirdBase != .empty {
+                incrementScore()
+                self.thirdBase = .empty
+            }
+            
+            if self.secondBase != .empty {
+                incrementScore()
+                self.secondBase = .empty
+            }
+            
+            if self.firstBase != .empty {
+                self.secondBase = self.firstBase
+            }
+            
+            self.firstBase = .init(
+                playerOn: currentBatter,
+                pitcherResponsible: currentPitcher
+            )
+        case .double:
+            if self.thirdBase != .empty {
+                incrementScore()
+                self.thirdBase = .empty
+            }
+            
+            if self.secondBase != .empty {
+                incrementScore()
+                self.secondBase = .empty
+            }
+            
+            if self.firstBase != .empty {
+                self.thirdBase = self.firstBase
+                self.firstBase = .empty
+            }
+            
+            self.secondBase = .init(
+                playerOn: currentBatter,
+                pitcherResponsible: currentPitcher
+            )
+        case .triple:
+            if self.thirdBase != .empty {
+                incrementScore()
+                self.thirdBase = .empty
+            }
+            
+            if self.secondBase != .empty {
+                incrementScore()
+                self.secondBase = .empty
+            }
+            
+            if self.firstBase != .empty {
+                incrementScore()
+                self.firstBase = .empty
+            }
+            
+            self.thirdBase = .init(
+                playerOn: currentBatter,
+                pitcherResponsible: currentPitcher
+            )
+        case .homeRun:
+            let numberOfRunsToScore = [firstBase, secondBase, thirdBase].filter({ $0 != .empty }).count + 1
+            incrementScore(by: numberOfRunsToScore)
+        case .groundOut:
+            handleGroundOut()
+        case .flyOut:
+            handleFlyOut()
+        default:
+            return
+        }
+    }
+    
+    private mutating func handleFlyOut() {
+        /*
+         1 or less outs
+         --------------
+         Bases loaded -> Runner on third scores, runner on second to third, runner on first to second, add an out
+         1st and 2nd -> Runner on 1st to 2nd, runner on 2nd to 3rd, add an out
+         1st and 3rd -> Runner on 3rd scores, runner on 1st to 2nd, add an out
+         2nd and 3rd -> Runner on 3rd scores, runner on 2nd to 3rd, add an out
+         1st -> Runner on 1st to 2nd, add an out
+         2nd -> Runner on 2nd to 3rd, add an out
+         3rd -> Runner on 3rd scores, add an out
+         */
+        if outs != 2 {
+            if firstBase != .empty && secondBase != .empty && thirdBase != .empty {
+                self.thirdBase = self.secondBase
+                self.secondBase = self.firstBase
+                self.firstBase = .empty
+                incrementOuts()
+                incrementScore()
+            } else if firstBase != .empty && secondBase != .empty {
+                self.thirdBase = self.secondBase
+                self.secondBase = self.firstBase
+                self.firstBase = .empty
+                incrementOuts()
+            } else if firstBase != .empty && thirdBase != .empty {
+                self.secondBase = self.firstBase
+                self.firstBase = .empty
+                self.thirdBase = .empty
+                incrementScore()
+                incrementOuts()
+            } else if secondBase != .empty && thirdBase != .empty {
+                self.thirdBase = self.secondBase
+                self.secondBase = .empty
+                incrementOuts()
+                incrementScore()
+            } else if firstBase != .empty {
+                self.secondBase = self.firstBase
+                self.firstBase = .empty
+                incrementOuts()
+            } else if secondBase != .empty {
+                self.thirdBase = self.secondBase
+                self.secondBase = .empty
+                incrementOuts()
+            } else if thirdBase != .empty {
+                self.thirdBase = .empty
+                incrementOuts()
+                incrementScore()
+            } else {
+                incrementOuts()
+            }
+        }
+    }
+    
+    private mutating func handleGroundOut() {
+        /*
+         Bases loaded one out -> 1 run scores and add 2 out
+         1st and 2nd one out -> Runner on third and add 2 outs
+         1st and 3rd one one out -> 1 run scores and add 2 outs
+         2nd and 3rd one out -> 1 run scores, runner to 3rd, add 1 out
+         1st and one out -> Add two outs
+         2nd and one out -> Add one out
+         3rd and one out -> Add one run and one out
+         Bases empty and one out -> Add one out
+         
+         Two outs -> End inning
+         */
+        if outs != 2 {
+            if firstBase != .empty && secondBase != .empty && thirdBase != .empty {
+                self.thirdBase = self.secondBase
+                self.secondBase = .empty
+                self.firstBase = .empty
+                if outs + 2 != 3 { incrementScore() }
+                incrementOuts(by: 2)
+            } else if firstBase != .empty && secondBase != .empty {
+                self.thirdBase = self.secondBase
+                self.secondBase = .empty
+                self.firstBase = .empty
+                incrementOuts(by: 2)
+            } else if firstBase != .empty && thirdBase != .empty {
+                if outs + 2 != 3 { incrementScore() }
+                incrementOuts(by: 2)
+            } else if secondBase != .empty && thirdBase != .empty {
+                incrementScore()
+                self.thirdBase = self.secondBase
+                self.secondBase = .empty
+                incrementOuts()
+            } else if firstBase != .empty {
+                incrementOuts(by: 2)
+            } else if secondBase != .empty {
+                incrementOuts()
+                self.thirdBase = self.secondBase
+                self.secondBase = .empty
+            } else if thirdBase != .empty {
+                incrementScore()
+                incrementOuts()
+            } else {
+                // bases empty
+                incrementOuts()
+            }
+        } else {
+            // 2 outs
+            incrementOuts()
+        }
+    }
+    
+    private mutating func incrementOuts(by amount: Int = 1) {
+        outs += amount
         clearCount()
         
         if outs == 3 {
@@ -171,6 +359,13 @@ extension Game {
         }
     }
     
+    private mutating func incrementScore(by amount: Int = 1) {
+        switch atBat {
+        case .away: awayTeamScore += amount
+        case .home: homeTeamScore += amount
+        }
+    }
+    
     private mutating func finishGame() {
         isGameOver = true
     }
@@ -216,6 +411,22 @@ extension Game {
         public enum Call {
             case strike
             case ball
+        }
+        
+        public enum BatterResult {
+            case swingAndMiss
+            case foul
+            case single
+            case double
+            case triple
+            case homeRun
+            case groundOut
+            case flyOut
+        }
+        
+        public enum PitchResult {
+            case noCall(BatterResult)
+            case call(Pitch)
         }
     }
     
@@ -266,7 +477,8 @@ extension Game {
         .init(
             homeTeam: .empty,
             awayTeam: .empty,
-            generateRandomPitch: generateRandomPitch
+            generateRandomPitch: generateRandomPitch,
+            batterResult: { _, _ in nil }
         )
     }
     
@@ -276,7 +488,8 @@ extension Game {
             awayTeam: .emptyWith(battingOrder: battingOrder),
             currentBalls: 3,
             currentStrikes: 2,
-            generateRandomPitch: generateRandomPitchLive
+            generateRandomPitch: generateRandomPitchLive,
+            batterResult: { _, _ in nil }
         )
     }
     
@@ -290,7 +503,8 @@ extension Game {
             outs: 2,
             currentBalls: 3,
             currentStrikes: 2,
-            generateRandomPitch: generateRandomPitchLive
+            generateRandomPitch: generateRandomPitchLive,
+            batterResult: { _, _ in nil }
         )
     }
     
@@ -305,7 +519,28 @@ extension Game {
             outs: 2,
             currentBalls: 3,
             currentStrikes: 2,
-            generateRandomPitch: generateRandomPitchLive
+            generateRandomPitch: generateRandomPitchLive,
+            batterResult: { _, _ in nil }
+        )
+    }
+    
+    static func mockWith(
+        first: Base = .empty,
+        second: Base = .empty,
+        third: Base = .empty,
+        batter: Player = .empty(),
+        pitcher: Player = .empty(),
+        outs: Int = 0,
+        batterResult: @escaping (Pitch, Player) -> Pitch.BatterResult? = { _, _ in nil }
+    ) -> Self {
+        .init(
+            homeTeam: .emptyWith(pitchingRotation: [pitcher]),
+            awayTeam: .emptyWith(battingOrder: [batter]),
+            outs: outs,
+            firstBase: first,
+            secondBase: second,
+            thirdBase: third,
+            batterResult: batterResult
         )
     }
 }
@@ -316,5 +551,53 @@ extension Game {
         let randomX = Double.random(in: -2...8)
         let randomY = Double.random(in: -10...2)
         return .init(x: randomX, y: randomY)
+    }
+    
+    static func batterResultLive(pitch: Pitch, player: Player) -> Pitch.BatterResult? {
+        let isPlayerLookingToSwing = Int.random(in: 0...100) > 50
+        guard isPlayerLookingToSwing else { return nil }
+        
+        let isPitchOutOfZoneHorizontal = pitch.x < -0.5 || pitch.x > 6.5
+        let isPitchOutOfZoneVertical = pitch.y < -0.5 || pitch.y > 8.5
+        if isPitchOutOfZoneHorizontal || isPitchOutOfZoneVertical {
+            // pitch is a ball
+            let doesPlayerSwing = (Double(player.plateDiscipline) * Double.random(in: 0...1)) > 0.5
+            if doesPlayerSwing {
+                return .swingAndMiss
+            } else {
+                return nil
+            }
+        }
+        
+        let contactValue = Double.random(in: 0...1) * Double(player.contactPercentage)
+        if contactValue < 30 {
+            return .foul
+        }
+        
+        let powerAndContactValue = contactValue * (Double(player.power) / 100)
+        
+        switch powerAndContactValue {
+        case 0..<30:
+            return .groundOut
+        case 30..<50:
+            return [
+                Pitch.BatterResult.flyOut,
+                Pitch.BatterResult.single
+            ].randomElement()
+        case 50..<70:
+            return [
+                Pitch.BatterResult.flyOut,
+                Pitch.BatterResult.single,
+                Pitch.BatterResult.double
+            ].randomElement()
+        default:
+            return [
+                Pitch.BatterResult.flyOut,
+                Pitch.BatterResult.single,
+                Pitch.BatterResult.double,
+                Pitch.BatterResult.triple,
+                Pitch.BatterResult.homeRun
+            ].randomElement()
+        }
     }
 }

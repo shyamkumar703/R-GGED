@@ -19,6 +19,18 @@ public struct Team {
     var pitchingRotation: NonEmptyCircularArray<Player>
 }
 
+public enum League {
+    case national
+    case american
+}
+
+public enum Division {
+    case north
+    case south
+    case east
+    case west
+}
+
 extension Team {
     /// Mock empty team
     /// For use only in tests where properties of this object don't matter
@@ -47,6 +59,20 @@ extension Team {
             pitchingRotation: .init(.empty)
         )
     }
+    
+    static func emptyWith(pitchingRotation: [Player]) -> Self {
+        .init(
+            teamName: "",
+            teamAbbreviation: "",
+            teamColorPrimary: "",
+            teamColorSecondary: "",
+            league: .national,
+            division: .west,
+            roster: [.empty, .empty, .empty],
+            battingOrder: [.empty, .empty, .empty],
+            pitchingRotation: .init(pitchingRotation)
+        )
+    }
 }
 
 public struct Player: Identifiable, Equatable {
@@ -57,9 +83,12 @@ public struct Player: Identifiable, Equatable {
     public var age: Int
     public var draftYear: Int
     public var speed: Int
+    public var contactPercentage: Int // between 0 and 100
+    public var power: Int // between 0 and 100
+    public var plateDiscipline: Int // between 0 and 100
     
     public struct Season {
-        var atBats: [AtBat]
+//        var atBats: [AtBat]
         var inningsPitched: Int
         var earnedRuns: Int
     }
@@ -88,7 +117,10 @@ extension Player {
         position: .catcher,
         age: 1,
         draftYear: 1,
-        speed: 1
+        speed: 1,
+        contactPercentage: Int.random(in: 1..<100),
+        power: Int.random(in: 1..<100),
+        plateDiscipline: Int.random(in: 1..<100)
     )
     
     static func empty(id: UUID = UUID()) -> Self {
@@ -99,7 +131,10 @@ extension Player {
             position: .catcher,
             age: 1,
             draftYear: 1,
-            speed: 1
+            speed: 1,
+            contactPercentage: Int.random(in: 1..<100),
+            power: Int.random(in: 1..<100),
+            plateDiscipline: Int.random(in: 1..<75)
         )
     }
 }
