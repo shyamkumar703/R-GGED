@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct NonEmptyCircularArray<Element> {
+public struct NonEmptyCircularArray<Element> {
     private var head: Element
     private var tail: [Element]
     
@@ -57,13 +57,13 @@ struct NonEmptyCircularArray<Element> {
 }
 
 extension NonEmptyCircularArray: CustomStringConvertible {
-    var description: String {
+    public var description: String {
         return ([head] + tail).description
     }
 }
 
 extension NonEmptyCircularArray: Equatable where Element: Equatable {
-    static func == (lhs: Self, rhs: Self) -> Bool {
+    public static func == (lhs: Self, rhs: Self) -> Bool {
         guard lhs.count == rhs.count else { return false }
         for index in 0..<lhs.count {
             guard lhs[index] == rhs[index] else { return false }

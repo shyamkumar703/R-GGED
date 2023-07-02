@@ -17,6 +17,47 @@ public struct Team {
     var roster: [Player]
     var battingOrder: [Player]
     var pitchingRotation: NonEmptyCircularArray<Player>
+    
+    init(
+        teamName: String,
+        teamAbbreviation: String,
+        teamColorPrimary: String,
+        teamColorSecondary: String,
+        league: League,
+        division: Division,
+        roster: [Player],
+        battingOrder: [Player],
+        pitchingRotation: NonEmptyCircularArray<Player>
+    ) {
+        self.teamName = teamName
+        self.teamAbbreviation = teamAbbreviation
+        self.teamColorPrimary = teamColorPrimary
+        self.teamColorSecondary = teamColorSecondary
+        self.league = league
+        self.division = division
+        self.roster = roster
+        self.battingOrder = battingOrder
+        self.pitchingRotation = pitchingRotation
+    }
+    
+    public init(
+        teamName: String,
+        teamAbbreviation: String,
+        teamColorPrimary: String,
+        teamColorSecondary: String,
+        league: League,
+        division: Division
+    ) {
+        self.teamName = teamName
+        self.teamAbbreviation = teamAbbreviation
+        self.teamColorPrimary = teamColorPrimary
+        self.teamColorSecondary = teamColorSecondary
+        self.league = league
+        self.division = division
+        self.roster = Player.generateRandomRoster()
+        self.battingOrder = self.roster.battingOrder()
+        self.pitchingRotation = self.roster.pitchingRotation()
+    }
 }
 
 public enum League {
@@ -105,6 +146,7 @@ public struct Player: Identifiable, Equatable {
         case rightField
         case leftField
         case centerField
+        case shortstop
         
         static var fielders: [Self] = allCases.filter({ $0 != .pitcher })
     }
@@ -202,6 +244,27 @@ extension Player {
         )
     }
     
+    static func emptyWith(
+        id: UUID = UUID(),
+        position: Position = .catcher,
+        overallValue: Int = Int.random(in: 1..<100)
+    ) -> Self {
+        .init(
+            id: id,
+            firstName: "",
+            lastName: "",
+            position: position,
+            age: 1,
+            draftYear: 1,
+            speed: overallValue,
+            contactPercentage: overallValue,
+            power: overallValue,
+            plateDiscipline: overallValue,
+            pitchingControl: Int.random(in: 1..<100),
+            pitchingPower: Int.random(in: 1..<100)
+        )
+    }
+    
     static func emptyPitcherWith(
         id: UUID = UUID(),
         pitchingControl: Int,
@@ -226,10 +289,21 @@ extension Player {
 
 // MARK: - Helpers
 extension Array where Element == Player {
+    var second: Element? {
+        guard self.count >= 2 else { return nil }
+        return self[1]
+    }
+    
     func starter(for position: Player.Position) -> Player {
         filter({ $0.position == position })
             .sorted(by: { $0.overall > $1.overall })
             .first!
+    }
+    
+    func backup(for position: Player.Position) -> Player? {
+        filter({ $0.position == position })
+            .sorted(by: { $0.overall > $1.overall })
+            .second
     }
     
     func pitchingRotation() -> NonEmptyCircularArray<Player> {
@@ -237,5 +311,28 @@ extension Array where Element == Player {
             filter({ $0.position == .pitcher })
                 .sorted(by: { $0.pitchingOverall > $1.pitchingOverall })
         )
+    }
+    
+    func battingOrder() -> Self {
+        var battingOrder = [Player]()
+        var batters = Player.Position.fielders
+            .map({ starter(for: $0) })
+            .sorted(by: { $0.overall > $1.overall })
+        // Add the best backup as DH
+        batters.append(
+            Player.Position.fielders
+                .compactMap({ backup(for: $0) })
+                .sorted(by: { $0.overall > $1.overall })
+                .first!
+        )
+        guard batters.count >= 9 else {
+            fatalError("Requested batting order with less than 9 eligible batters")
+        }
+        // Worst of top 4 batting first, best batting cleanup
+        battingOrder += Array(batters[0...3].reversed())
+        // Rest of batters in order, with worst batter at ninth
+        battingOrder += Array(batters[4...8])
+        
+        return battingOrder
     }
 }

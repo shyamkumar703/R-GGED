@@ -6,24 +6,7 @@
 //
 
 import Foundation
-import SwiftUI
 
-public struct World {
+protocol Randomizable {
+    static func random() -> Self
 }
-
-//public struct AtBat {
-//    public var id: UUID
-//    public var pitcher: Player
-//    public var hitter: Player
-//    public var result: Result
-//
-//    public enum Result {
-//        case walk
-//        case hitByPitch
-//        case single
-//        case double
-//        case triple
-//        case homeRun
-//        case strikeout
-//    }
-//}

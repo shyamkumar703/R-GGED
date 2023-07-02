@@ -439,7 +439,13 @@ extension Game {
         var awayTeamTilt: Double
         var umpireGrade: Double
         
-        static var new: Self = .init(correctCalls: 0, incorrectCalls: 0, homeTeamTilt: 0.5, awayTeamTilt: 0.5, umpireGrade: 0.5)
+        static var new: Self = .init(
+            correctCalls: 0,
+            incorrectCalls: 0,
+            homeTeamTilt: 0.5,
+            awayTeamTilt: 0.5,
+            umpireGrade: 0.5
+        )
     }
     
     public struct Base: Equatable {

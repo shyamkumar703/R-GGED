@@ -50,4 +50,57 @@ final class PlayerTests: XCTestCase {
             NonEmptyCircularArray(pitcher1, pitcher2, pitcher3)
         )
     }
+    
+    func testBattingOrder_SortsCorrectly() {
+        let first: Player = .emptyWith(
+            position: .firstBase,
+            overallValue: 93
+        )
+        
+        let second: Player = .emptyWith(
+            position: .secondBase,
+            overallValue: 94
+        )
+        
+        let third: Player = .emptyWith(
+            position: .thirdBase,
+            overallValue: 95
+        )
+        
+        let fourth: Player = .emptyWith(
+            position: .catcher,
+            overallValue: 96
+        )
+        
+        let fifth: Player = .emptyWith(
+            position: .rightField,
+            overallValue: 89
+        )
+        
+        let sixth: Player = .emptyWith(
+            position: .leftField,
+            overallValue: 88
+        )
+        
+        let seventh: Player = .emptyWith(
+            position: .centerField,
+            overallValue: 87
+        )
+        
+        let eighth: Player = .emptyWith(
+            position: .shortstop,
+            overallValue: 86
+        )
+        
+        let ninth: Player = .emptyWith(
+            position: .firstBase,
+            overallValue: 85
+        )
+        
+        XCTAssertEqual(
+            [second, third, fourth, fifth, first, sixth, seventh, eighth, ninth]
+                .battingOrder(),
+            [first, second, third, fourth, fifth, sixth, seventh, eighth, ninth]
+        )
+    }
 }
