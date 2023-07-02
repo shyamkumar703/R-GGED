@@ -7,31 +7,35 @@
 
 import Foundation
 
-struct NonEmptyCircularArray<T> {
-    private var head: T
-    private var tail: [T]
+struct NonEmptyCircularArray<Element> {
+    private var head: Element
+    private var tail: [Element]
     
-    public init(_ elements: T...) {
-        self.head = elements.first!
-        var interTail = [T]()
-        for elementIndex in 1..<elements.count {
-            interTail.append(elements[elementIndex])
-        }
-        
-        self.tail = interTail
+    public var count: Int {
+        tail.count + 1
     }
     
-    public init(_ elements: [T]) {
+    public init(_ elements: Element...) {
         self.head = elements.first!
-        var interTail = [T]()
+        var interElementail = [Element]()
         for elementIndex in 1..<elements.count {
-            interTail.append(elements[elementIndex])
+            interElementail.append(elements[elementIndex])
         }
         
-        self.tail = interTail
+        self.tail = interElementail
     }
     
-    public mutating func getFirst() -> T {
+    public init(_ elements: [Element]) {
+        self.head = elements.first!
+        var interElementail = [Element]()
+        for elementIndex in 1..<elements.count {
+            interElementail.append(elements[elementIndex])
+        }
+        
+        self.tail = interElementail
+    }
+    
+    public mutating func getFirst() -> Element {
         guard let newHead = tail.popFirst() else {
             // tail is empty
             return head
@@ -42,14 +46,30 @@ struct NonEmptyCircularArray<T> {
         return tempHead
     }
     
-    public func toArray() -> [T] {
+    public func toArray() -> [Element] {
         return [head] + tail
+    }
+    
+    public subscript(index: Int) -> Element {
+        if index == 0 { return head }
+        return tail[index - 1]
     }
 }
 
 extension NonEmptyCircularArray: CustomStringConvertible {
     var description: String {
         return ([head] + tail).description
+    }
+}
+
+extension NonEmptyCircularArray: Equatable where Element: Equatable {
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        guard lhs.count == rhs.count else { return false }
+        for index in 0..<lhs.count {
+            guard lhs[index] == rhs[index] else { return false }
+        }
+        
+        return true
     }
 }
 

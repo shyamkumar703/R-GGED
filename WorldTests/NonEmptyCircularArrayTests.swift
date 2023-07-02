@@ -24,4 +24,18 @@ final class NonEmptyCircularArrayTests: XCTestCase {
         XCTAssertEqual(sut.toArray(), [1, 2])
         XCTAssertEqual(sut.getFirst(), 1)
     }
+    
+    func testTwoEqualArrays_AreEqualNonEmptyCircularArrays() {
+        XCTAssertEqual(
+            NonEmptyCircularArray([1, 2, 3]),
+            NonEmptyCircularArray([1, 2, 3])
+        )
+    }
+    
+    func testTwoUnequalArrays_AreUnequalNonEmptyCircularArrays() {
+        XCTAssertNotEqual(
+            NonEmptyCircularArray(1, 2, 3),
+            NonEmptyCircularArray(4, 5, 6)
+        )
+    }
 }
