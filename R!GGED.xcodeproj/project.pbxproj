@@ -29,6 +29,8 @@
 		2D1E451C2A50E0BF003F9C1D /* FlyOutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1E451B2A50E0BF003F9C1D /* FlyOutTests.swift */; };
 		2D8E87A42A51023600A0214F /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8E87A32A51023600A0214F /* Constants.swift */; };
 		2DB06B2C2A51EB61008588D7 /* PlayerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB06B2B2A51EB61008588D7 /* PlayerTests.swift */; };
+		2DE7085D2A52595B0097F623 /* SeasonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE7085C2A52595B0097F623 /* SeasonTests.swift */; };
+		2DFE2B482A522B6800DD1D32 /* Season.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFE2B472A522B6800DD1D32 /* Season.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -109,6 +111,8 @@
 		2D8E87A32A51023600A0214F /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		2DB06B2B2A51EB61008588D7 /* PlayerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerTests.swift; sourceTree = "<group>"; };
 		2DD7A6CA2A50AB2C00305F55 /* World.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = World.xctestplan; sourceTree = "<group>"; };
+		2DE7085C2A52595B0097F623 /* SeasonTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeasonTests.swift; sourceTree = "<group>"; };
+		2DFE2B472A522B6800DD1D32 /* Season.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Season.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -233,6 +237,7 @@
 				2D1E45192A50DEE9003F9C1D /* GroundOutTests.swift */,
 				2D1E451B2A50E0BF003F9C1D /* FlyOutTests.swift */,
 				2DB06B2B2A51EB61008588D7 /* PlayerTests.swift */,
+				2DE7085C2A52595B0097F623 /* SeasonTests.swift */,
 			);
 			path = WorldTests;
 			sourceTree = "<group>";
@@ -243,6 +248,7 @@
 				01C2A7162A4F5CA2004F701D /* World.swift */,
 				01C2A7182A4F6C3B004F701D /* Game.swift */,
 				01C2A71A2A4F6D40004F701D /* Team.swift */,
+				2DFE2B472A522B6800DD1D32 /* Season.swift */,
 			);
 			path = Interface;
 			sourceTree = "<group>";
@@ -387,7 +393,6 @@
 					};
 					01C2A6FF2A4F5C71004F701D = {
 						CreatedOnToolsVersion = 14.3;
-						TestTargetID = 01C2A6C42A4F5C3A004F701D;
 					};
 				};
 			};
@@ -489,6 +494,7 @@
 				01C2A7172A4F5CA2004F701D /* World.swift in Sources */,
 				01C2A7192A4F6C3B004F701D /* Game.swift in Sources */,
 				01C2A6FB2A4F5C71004F701D /* World.docc in Sources */,
+				2DFE2B482A522B6800DD1D32 /* Season.swift in Sources */,
 				2D8E87A42A51023600A0214F /* Constants.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -497,6 +503,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2DE7085D2A52595B0097F623 /* SeasonTests.swift in Sources */,
 				2DB06B2C2A51EB61008588D7 /* PlayerTests.swift in Sources */,
 				01C2A7202A4F6FAC004F701D /* NonEmptyCircularArrayTests.swift in Sources */,
 				2D1E451A2A50DEE9003F9C1D /* GroundOutTests.swift in Sources */,
@@ -884,7 +891,6 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/R!GGED.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/R!GGED";
 			};
 			name = Debug;
 		};
@@ -906,7 +912,6 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/R!GGED.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/R!GGED";
 			};
 			name = Release;
 		};

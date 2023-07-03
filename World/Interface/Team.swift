@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public struct Team {
+public struct Team: Equatable {
     var teamName: String
     var teamAbbreviation: String
     var teamColorPrimary: String // hex
@@ -66,9 +66,8 @@ public enum League {
 }
 
 public enum Division {
-    case north
-    case south
     case east
+    case central
     case west
 }
 

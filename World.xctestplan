@@ -9,10 +9,19 @@
     }
   ],
   "defaultOptions" : {
-    "codeCoverage" : false
+    "codeCoverage" : {
+      "targets" : [
+        {
+          "containerPath" : "container:R!GGED.xcodeproj",
+          "identifier" : "01C2A6F62A4F5C71004F701D",
+          "name" : "World"
+        }
+      ]
+    }
   },
   "testTargets" : [
     {
+      "parallelizable" : true,
       "target" : {
         "containerPath" : "container:R!GGED.xcodeproj",
         "identifier" : "01C2A6FF2A4F5C71004F701D",
