@@ -32,13 +32,63 @@ public struct Season {
         // 3 games against all other teams from opposite league
         var schedule = [PlannedSeries]()
         for team in teams {
-            generateSchedule(for: team, intermediateSchedule: &schedule, allTeams: teams)
+            generateSchedule(
+                for: team,
+                intermediateSchedule: &schedule,
+                allTeams: teams
+            )
         }
-        
+        schedule += generateLeagueSeries(for: teams)
         return schedule
     }
     
-    private static func generateSchedule(for team: Team, intermediateSchedule: inout [PlannedSeries], allTeams: [Team]) {
+    static func generateLeagueSeries(for teams: [Team]) -> [PlannedSeries] {
+        var plannedSeries = [PlannedSeries]()
+        for team in teams {
+            for division in team.division.not {
+                var (sevenGameSeriesInDivision, sixGameSeriesInDivision, teamMatchups) = plannedSeries.matchups(team: team, again: division)
+                while sevenGameSeriesInDivision < 3 || sixGameSeriesInDivision < 2 {
+                    if sevenGameSeriesInDivision < 3 {
+                        guard let minSevenGameSeriesInDivisionTeam = teams
+                            .teams(league: team.league, division: division)
+                            .filter({ !teamMatchups.contains($0) })
+                            .sorted(by: {
+                                plannedSeries.matchups(team: $0, again: team.division).sevenGameSeries < plannedSeries.matchups(team: $1, again: team.division).sevenGameSeries
+                            })
+                            .first else {
+                            fatalError()
+                        }
+                        plannedSeries.append(.init(homeTeam: team, awayTeam: minSevenGameSeriesInDivisionTeam, games: 4))
+                        plannedSeries.append(.init(homeTeam: minSevenGameSeriesInDivisionTeam, awayTeam: team, games: 3))
+                        teamMatchups.append(minSevenGameSeriesInDivisionTeam)
+                        sevenGameSeriesInDivision += 1
+                    } else if sixGameSeriesInDivision < 2 {
+                        guard let minSixGameSeriesInDivisionTeam = teams
+                            .teams(league: team.league, division: division)
+                            .filter({ !teamMatchups.contains($0) })
+                            .sorted(by: {
+                                plannedSeries.matchups(team: $0, again: team.division).sixGameSeries < plannedSeries.matchups(team: $1, again: team.division).sixGameSeries
+                            })
+                                .first else {
+                            fatalError()
+                        }
+                        plannedSeries.append(.init(homeTeam: team, awayTeam: minSixGameSeriesInDivisionTeam, games: 3))
+                        plannedSeries.append(.init(homeTeam: minSixGameSeriesInDivisionTeam, awayTeam: team, games: 3))
+                        teamMatchups.append(minSixGameSeriesInDivisionTeam)
+                        sixGameSeriesInDivision += 1
+                    }
+                }
+            }
+        }
+        
+        return plannedSeries
+    }
+    
+    private static func generateSchedule(
+        for team: Team,
+        intermediateSchedule: inout [PlannedSeries],
+        allTeams: [Team]
+    ) {
         var gamesNeeded = [(Team, Int)]() // team, number of games needed
         // opponents in division
         let divisionalOpponents = allTeams.filter({ $0 != team && $0.league == team.league && $0.division == team.division })
@@ -48,21 +98,8 @@ public struct Season {
                 gamesNeeded.append((opponent, 13 - gamesAgainst))
             }
         }
-        // opponents in league (and not in division)
-        let leagueOpponents = allTeams.filter({ $0.league == team.league && $0.division != team.division })
-        for opponent in leagueOpponents {
-            let gamesAgainst = gamesAgainst(currentTeam: team, opponent: opponent, schedule: intermediateSchedule)
-            if gamesAgainst < 6 {
-                guard gamesAgainst == 3 || gamesAgainst == 4 || gamesAgainst == 0 else {
-                    fatalError("Schedule should only create series' of 3 or 4 games")
-                }
-                
-                // Max out at 6 games for first go-around, second go-around will match teams that need more games to add a fourth game
-                gamesNeeded.append((opponent, 6 - gamesAgainst))
-            }
-        }
+
         // opponents in opposite league
-        // will only worry about 3 games against all teams from opposite league during first go-around, will match teams for a 4th game during second go-around
         let interleagueOpponents = allTeams.filter({ $0.league != team.league })
         for opponent in interleagueOpponents {
             let gamesAgainst = gamesAgainst(currentTeam: team, opponent: opponent, schedule: intermediateSchedule)
@@ -76,7 +113,8 @@ public struct Season {
         
         for (opponent, games) in gamesNeeded {
             if games < 3 {
-                // TODO: - Implement
+                // shouldn't have any series less than 3 games
+                fatalError()
             } else {
                 let fourGameSeries = games % 3
                 let threeGameSeries = (games / 3) - fourGameSeries
@@ -99,10 +137,6 @@ public struct Season {
                 }
             }
         }
-        
-        // MARK: - Second go-around
-        // 4 league series' need to be 4 games instead of 3
-        // 1 interleague series needs to be 4 games instead of 3
     }
     
     private static func gamesAgainst(currentTeam: Team, opponent: Team, schedule: [PlannedSeries]) -> Int {
@@ -111,7 +145,7 @@ public struct Season {
             .reduce(0, { partialResult, series in partialResult + series.plannedGames.count})
     }
     
-    private static func generateTeams() -> [Team] {
+    static func generateTeams() -> [Team] {
         return [
             .init(
                 teamName: "Arizona",
@@ -358,13 +392,13 @@ public struct Season {
 }
 
 extension Season {
-    public struct PlannedSeries: CustomStringConvertible {
-        var homeTeam: Team
-        var awayTeam: Team
-        var plannedGames: [PlannedGame]
-        var id: UUID
+    public struct PlannedSeries: CustomStringConvertible, Identifiable {
+        public var homeTeam: Team
+        public var awayTeam: Team
+        public var plannedGames: [PlannedGame]
+        public var id: UUID
         
-        var games: Int {
+        public var games: Int {
             plannedGames.count
         }
         
@@ -410,8 +444,16 @@ extension Season {
             )
         }
         
+        mutating func removeGameFromSeries() {
+            plannedGames.removeLast()
+        }
+        
         func contains(team: Team) -> Bool {
             team == homeTeam || team == awayTeam
+        }
+        
+        func contains(_ team1: Team, _ team2: Team) -> Bool {
+            return contains(team: team1) && contains(team: team2)
         }
         
         func not(team: Team) -> Team {
@@ -434,10 +476,72 @@ extension Season {
     }
 }
 
+extension Array where Element == Team {
+    func teams(league: League, division: Division) -> Self {
+        filter({ $0.league == league && $0.division == division })
+    }
+    
+    func teams(league: League, not division: Division) -> Self {
+        filter({ $0.league == league && $0.division != division })
+    }
+    
+    func leagueMatchups(for team: Team) -> Self {
+        teams(league: team.league, not: team.division)
+    }
+}
+
 extension Array where Element == Season.PlannedSeries {
     func flatten() -> [Season.PlannedGame] {
         self.reduce([], { partialResult, series in
             partialResult + series.plannedGames
         })
+    }
+    
+    func matchups(team: Team, again division: Division) -> (sevenGameSeries: Int, sixGameSeries: Int, teamMatchups: [Team]) {
+        let filteredSeries = filter({ $0.contains(team: team) && $0.not(team: team).division == division })
+        var dictionary = [Team: Int]()
+        for series in filteredSeries {
+            let opposingTeam = series.not(team: team)
+            if dictionary[opposingTeam] == nil {
+                dictionary[opposingTeam] = series.games
+            } else {
+                dictionary[opposingTeam]? += series.games
+            }
+        }
+        
+        var sevenGameSeries = 0
+        var sixGameSeries = 0
+        var teamMatchups = [Team]()
+        for (_, gameCount) in dictionary {
+            if gameCount == 7 {
+                sevenGameSeries += 1
+                teamMatchups.append(team)
+            } else if gameCount == 6 {
+                sixGameSeries += 1
+                teamMatchups.append(team)
+            } else {
+                fatalError()
+            }
+        }
+        
+        return (sevenGameSeries, sixGameSeries, teamMatchups)
+    }
+}
+
+extension Array where Element: Identifiable {
+    subscript(id: Element.ID) -> Element? {
+        filter({ $0.id == id }).first
+    }
+    
+    mutating func remove(id: Element.ID) {
+        removeAll(where: { $0.id == id })
+    }
+}
+
+extension Array where Element == (Team, Team) {
+    func getMatches(for team: Team) -> [Team] {
+        self
+            .filter({ $0.0 == team || $0.1 == team })
+            .map({ $0.0 != team ? $0.0 : $0.1 })
     }
 }

@@ -7,7 +7,10 @@
 
 import SwiftUI
 
-public struct Team: Equatable {
+public struct Team: Equatable, Identifiable, Hashable {
+    public var id: String {
+        teamName
+    }
     var teamName: String
     var teamAbbreviation: String
     var teamColorPrimary: String // hex
@@ -58,6 +61,10 @@ public struct Team: Equatable {
         self.battingOrder = self.roster.battingOrder()
         self.pitchingRotation = self.roster.pitchingRotation()
     }
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
 }
 
 public enum League {
@@ -65,26 +72,32 @@ public enum League {
     case american
 }
 
-public enum Division {
+public enum Division: CaseIterable {
     case east
     case central
     case west
+    
+    var not: [Division] {
+        Division.allCases.filter({ $0 != self })
+    }
 }
 
 extension Team {
     /// Mock empty team
     /// For use only in tests where properties of this object don't matter
-    static var empty: Self = .init(
-        teamName: "",
-        teamAbbreviation: "",
-        teamColorPrimary: "",
-        teamColorSecondary: "",
-        league: .national,
-        division: .west,
-        roster: [.empty, .empty, .empty],
-        battingOrder: [.empty, .empty, .empty],
-        pitchingRotation: .init(.empty)
-    )
+    static var empty: Self {
+        .init(
+            teamName: UUID().uuidString,
+            teamAbbreviation: UUID().uuidString,
+            teamColorPrimary: "",
+            teamColorSecondary: "",
+            league: .national,
+            division: .west,
+            roster: [.empty, .empty, .empty],
+            battingOrder: [.empty, .empty, .empty],
+            pitchingRotation: .init(.empty)
+        )
+    }
     
     static func emptyWith(battingOrder: [Player]) -> Self {
         .init(

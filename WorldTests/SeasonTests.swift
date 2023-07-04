@@ -9,35 +9,40 @@
 import XCTest
 
 final class SeasonTests: XCTestCase {
+    func testCreatePlannedSeries_RespectsNumberOfGamesAdded() {
+        let sut = Season.PlannedSeries(homeTeam: .empty, awayTeam: .empty)
+        XCTAssertEqual(sut.games, 3) // default value
+        
+        let sut2 = Season.PlannedSeries(homeTeam: .empty, awayTeam: .empty, games: 4)
+        XCTAssertEqual(sut2.games, 4)
+        
+        let sut3 = Season.PlannedSeries(homeTeam: .empty, awayTeam: .empty, games: 2)
+        XCTAssertEqual(sut3.games, 2)
+    }
+    
     func testGenerateSchedule_CreatesAValidMLBSchedule() {
-        var sut = Season()
+        let sut = Season()
         for team in sut.teams {
-            print(team.teamName)
-            print("===========================")
             let teamSchedule = sut.schedule.filter({ $0.contains(team: team) })
             let divisionalGames = teamSchedule
                 .filter({ $0.isDivisionalSeries })
-                .reduce([], { partialResult, series in
-                    partialResult + series.plannedGames
-                })
-            print("Total divisional games: \(divisionalGames.count)")
+                .flatten()
+                .count
+            XCTAssertEqual(divisionalGames, 52)
+            
             let leagueGames = teamSchedule
                 .filter({ $0.isLeagueSeries })
-                .reduce([], { partialResult, series in
-                    partialResult + series.plannedGames
-                })
-            print("Total league games: \(leagueGames.count)")
+                .flatten()
+                .count
+            XCTAssertEqual(leagueGames, 66)
+            
             let interleagueGames = teamSchedule
                 .filter({ $0.isInterleagueSeries })
-                .reduce([], { partialResult, series in
-                    partialResult + series.plannedGames
-                })
-            print("Total interleague games: \(interleagueGames.count)")
-            let flattenedTeamSchedule = teamSchedule
-                .reduce([], { partialResult, series in
-                    partialResult + series.plannedGames
-                })
-            print("Total games: \(flattenedTeamSchedule.count)")
+                .flatten()
+                .count
+            XCTAssertEqual(interleagueGames, 45)
+            
+            XCTAssertEqual(teamSchedule.flatten().count, 163)
         }
     }
 }
