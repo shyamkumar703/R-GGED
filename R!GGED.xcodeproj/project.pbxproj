@@ -25,6 +25,9 @@
 		01C2A71E2A4F6DDF004F701D /* NonEmptyCircularArray.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C2A71D2A4F6DDF004F701D /* NonEmptyCircularArray.swift */; };
 		01C2A7202A4F6FAC004F701D /* NonEmptyCircularArrayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C2A71F2A4F6FAC004F701D /* NonEmptyCircularArrayTests.swift */; };
 		01C2A7232A4F733C004F701D /* GameTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C2A7222A4F733C004F701D /* GameTests.swift */; };
+		2D0C2EF42A547A9A003F5D96 /* Season+GenerateTeams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D0C2EF32A547A9A003F5D96 /* Season+GenerateTeams.swift */; };
+		2D0C2EF62A547AFE003F5D96 /* ArrayExtensionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D0C2EF52A547AFE003F5D96 /* ArrayExtensionTests.swift */; };
+		2D0C2EF82A547B5E003F5D96 /* ArrayExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D0C2EF72A547B5E003F5D96 /* ArrayExtension.swift */; };
 		2D1E451A2A50DEE9003F9C1D /* GroundOutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1E45192A50DEE9003F9C1D /* GroundOutTests.swift */; };
 		2D1E451C2A50E0BF003F9C1D /* FlyOutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1E451B2A50E0BF003F9C1D /* FlyOutTests.swift */; };
 		2D8E87A42A51023600A0214F /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8E87A32A51023600A0214F /* Constants.swift */; };
@@ -106,6 +109,9 @@
 		01C2A71D2A4F6DDF004F701D /* NonEmptyCircularArray.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NonEmptyCircularArray.swift; sourceTree = "<group>"; };
 		01C2A71F2A4F6FAC004F701D /* NonEmptyCircularArrayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NonEmptyCircularArrayTests.swift; sourceTree = "<group>"; };
 		01C2A7222A4F733C004F701D /* GameTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameTests.swift; sourceTree = "<group>"; };
+		2D0C2EF32A547A9A003F5D96 /* Season+GenerateTeams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Season+GenerateTeams.swift"; sourceTree = "<group>"; };
+		2D0C2EF52A547AFE003F5D96 /* ArrayExtensionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrayExtensionTests.swift; sourceTree = "<group>"; };
+		2D0C2EF72A547B5E003F5D96 /* ArrayExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrayExtension.swift; sourceTree = "<group>"; };
 		2D1E45192A50DEE9003F9C1D /* GroundOutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroundOutTests.swift; sourceTree = "<group>"; };
 		2D1E451B2A50E0BF003F9C1D /* FlyOutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlyOutTests.swift; sourceTree = "<group>"; };
 		2D8E87A32A51023600A0214F /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
@@ -238,6 +244,7 @@
 				2D1E451B2A50E0BF003F9C1D /* FlyOutTests.swift */,
 				2DB06B2B2A51EB61008588D7 /* PlayerTests.swift */,
 				2DE7085C2A52595B0097F623 /* SeasonTests.swift */,
+				2D0C2EF52A547AFE003F5D96 /* ArrayExtensionTests.swift */,
 			);
 			path = WorldTests;
 			sourceTree = "<group>";
@@ -249,6 +256,8 @@
 				01C2A7182A4F6C3B004F701D /* Game.swift */,
 				01C2A71A2A4F6D40004F701D /* Team.swift */,
 				2DFE2B472A522B6800DD1D32 /* Season.swift */,
+				2D0C2EF32A547A9A003F5D96 /* Season+GenerateTeams.swift */,
+				2D0C2EF72A547B5E003F5D96 /* ArrayExtension.swift */,
 			);
 			path = Interface;
 			sourceTree = "<group>";
@@ -492,9 +501,11 @@
 				01C2A71E2A4F6DDF004F701D /* NonEmptyCircularArray.swift in Sources */,
 				01C2A71B2A4F6D40004F701D /* Team.swift in Sources */,
 				01C2A7172A4F5CA2004F701D /* World.swift in Sources */,
+				2D0C2EF82A547B5E003F5D96 /* ArrayExtension.swift in Sources */,
 				01C2A7192A4F6C3B004F701D /* Game.swift in Sources */,
 				01C2A6FB2A4F5C71004F701D /* World.docc in Sources */,
 				2DFE2B482A522B6800DD1D32 /* Season.swift in Sources */,
+				2D0C2EF42A547A9A003F5D96 /* Season+GenerateTeams.swift in Sources */,
 				2D8E87A42A51023600A0214F /* Constants.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -509,6 +520,7 @@
 				2D1E451A2A50DEE9003F9C1D /* GroundOutTests.swift in Sources */,
 				2D1E451C2A50E0BF003F9C1D /* FlyOutTests.swift in Sources */,
 				01C2A7232A4F733C004F701D /* GameTests.swift in Sources */,
+				2D0C2EF62A547AFE003F5D96 /* ArrayExtensionTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

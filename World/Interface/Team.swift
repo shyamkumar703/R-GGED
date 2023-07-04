@@ -99,6 +99,20 @@ extension Team {
         )
     }
     
+    static func emptyWith(league: League, division: Division) -> Self {
+        .init(
+            teamName: UUID().uuidString,
+            teamAbbreviation: UUID().uuidString,
+            teamColorPrimary: "",
+            teamColorSecondary: "",
+            league: league,
+            division: division,
+            roster: [.empty, .empty, .empty],
+            battingOrder: [.empty, .empty, .empty],
+            pitchingRotation: .init(.empty)
+        )
+    }
+    
     static func emptyWith(battingOrder: [Player]) -> Self {
         .init(
             teamName: "",
@@ -296,55 +310,5 @@ extension Player {
             pitchingControl: pitchingControl,
             pitchingPower: pitchingPower
         )
-    }
-}
-
-// MARK: - Helpers
-extension Array where Element == Player {
-    var second: Element? {
-        guard self.count >= 2 else { return nil }
-        return self[1]
-    }
-    
-    func starter(for position: Player.Position) -> Player {
-        filter({ $0.position == position })
-            .sorted(by: { $0.overall > $1.overall })
-            .first!
-    }
-    
-    func backup(for position: Player.Position) -> Player? {
-        filter({ $0.position == position })
-            .sorted(by: { $0.overall > $1.overall })
-            .second
-    }
-    
-    func pitchingRotation() -> NonEmptyCircularArray<Player> {
-        NonEmptyCircularArray(
-            filter({ $0.position == .pitcher })
-                .sorted(by: { $0.pitchingOverall > $1.pitchingOverall })
-        )
-    }
-    
-    func battingOrder() -> Self {
-        var battingOrder = [Player]()
-        var batters = Player.Position.fielders
-            .map({ starter(for: $0) })
-            .sorted(by: { $0.overall > $1.overall })
-        // Add the best backup as DH
-        batters.append(
-            Player.Position.fielders
-                .compactMap({ backup(for: $0) })
-                .sorted(by: { $0.overall > $1.overall })
-                .first!
-        )
-        guard batters.count >= 9 else {
-            fatalError("Requested batting order with less than 9 eligible batters")
-        }
-        // Worst of top 4 batting first, best batting cleanup
-        battingOrder += Array(batters[0...3].reversed())
-        // Rest of batters in order, with worst batter at ninth
-        battingOrder += Array(batters[4...8])
-        
-        return battingOrder
     }
 }

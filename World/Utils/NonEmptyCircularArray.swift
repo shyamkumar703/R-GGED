@@ -72,11 +72,3 @@ extension NonEmptyCircularArray: Equatable where Element: Equatable {
         return true
     }
 }
-
-extension Array {
-    mutating func popFirst() -> Element? {
-        guard let first else { return nil }
-        self.removeFirst()
-        return first
-    }
-}

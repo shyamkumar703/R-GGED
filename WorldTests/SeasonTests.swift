@@ -24,6 +24,8 @@ final class SeasonTests: XCTestCase {
         let sut = Season()
         for team in sut.teams {
             let teamSchedule = sut.schedule.filter({ $0.contains(team: team) })
+            XCTAssertEqual(teamSchedule.flatten().count, 163)
+            
             let divisionalGames = teamSchedule
                 .filter({ $0.isDivisionalSeries })
                 .flatten()
@@ -41,8 +43,6 @@ final class SeasonTests: XCTestCase {
                 .flatten()
                 .count
             XCTAssertEqual(interleagueGames, 45)
-            
-            XCTAssertEqual(teamSchedule.flatten().count, 163)
         }
     }
 }
