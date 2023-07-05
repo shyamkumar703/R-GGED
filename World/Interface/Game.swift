@@ -119,6 +119,18 @@ public struct Game {
             executeWalk()
         }
     }
+    
+    public mutating func simulate() {
+        while !isGameOver {
+            let pitch = generatePitch()
+            switch pitch {
+            case .call(let pitch):
+                makeCall(call: pitch.getCorrectCall())
+            default:
+                continue
+            }
+        }
+    }
 }
 
 // MARK: - Utility functions
@@ -355,9 +367,20 @@ extension Game {
         
         self.halfInning = self.halfInning.not
         
+        if self.inning > 9 {
+            switch atBat {
+            case .away:
+                secondBase = .init(playerOn: awayTeamBattingOrder.getFirst())
+            case .home:
+                secondBase = .init(playerOn: homeTeamBattingOrder.getFirst())
+            }
+        }
+        
         switch self.atBat {
-        case .away: self.currentBatter = self.awayTeamBattingOrder.getFirst()
-        case .home: self.currentBatter = self.homeTeamBattingOrder.getFirst()
+        case .away:
+            self.currentBatter = self.awayTeamBattingOrder.getFirst()
+        case .home:
+            self.currentBatter = self.homeTeamBattingOrder.getFirst()
         }
     }
     
@@ -430,6 +453,17 @@ extension Game {
             case noCall(BatterResult)
             case call(Pitch)
         }
+        
+        public func getCorrectCall() -> Call {
+            let isPitchOutOfZoneHorizontal = x < -0.5 || x > 6.5
+            let isPitchOutOfZoneVertical = y < -10.5 || y > 0.5
+            
+            if !isPitchOutOfZoneHorizontal && !isPitchOutOfZoneVertical {
+                return .strike
+            } else {
+                return .ball
+            }
+        }
     }
     
     public struct UmpireGame {
@@ -488,6 +522,10 @@ extension Game {
             generateRandomPitch: generateRandomPitch,
             batterResult: { _, _ in nil }
         )
+    }
+    
+    static var liveBatter: Self {
+        .init(homeTeam: .empty, awayTeam: .empty)
     }
     
     static func mockFullCount(battingOrder: [Player], generateRandomPitch: @escaping () -> Pitch = generateRandomPitchLive) -> Self {
@@ -576,11 +614,11 @@ extension Game {
     }
     
     static func batterResultLive(pitch: Pitch, player: Player) -> Pitch.BatterResult? {
-        let isPlayerLookingToSwing = Int.random(in: 0...100) > 50
+        let isPlayerLookingToSwing = Int.random(in: 0...100) > 20
         guard isPlayerLookingToSwing else { return nil }
         
         let isPitchOutOfZoneHorizontal = pitch.x < -0.5 || pitch.x > 6.5
-        let isPitchOutOfZoneVertical = pitch.y < -0.5 || pitch.y > 8.5
+        let isPitchOutOfZoneVertical = pitch.y < -10.5 || pitch.y > 0.5
         if isPitchOutOfZoneHorizontal || isPitchOutOfZoneVertical {
             // pitch is a ball
             let doesPlayerSwing = (Double(player.plateDiscipline) * Double.random(in: 0...1)) > 0.5
@@ -592,21 +630,21 @@ extension Game {
         }
         
         let contactValue = Double.random(in: 0...1) * Double(player.contactPercentage)
-        if contactValue < 30 {
+        if contactValue < 10 {
             return .foul
         }
         
         let powerAndContactValue = contactValue * (Double(player.power) / 100)
         
         switch powerAndContactValue {
-        case 0..<30:
+        case 0..<15:
             return .groundOut
-        case 30..<50:
+        case 15..<35:
             return [
                 Pitch.BatterResult.flyOut,
                 Pitch.BatterResult.single
             ].randomElement()
-        case 50..<70:
+        case 35..<65:
             return [
                 Pitch.BatterResult.flyOut,
                 Pitch.BatterResult.single,

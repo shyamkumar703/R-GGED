@@ -100,7 +100,6 @@ final class GameTests: XCTestCase {
         XCTAssertEqual(sut.inning, 10)
         XCTAssertEqual(sut.currentBalls, 0)
         XCTAssertEqual(sut.currentStrikes, 0)
-        XCTAssertEqual([sut.firstBase, sut.secondBase, sut.thirdBase], [.empty, .empty, .empty])
     }
     
     func testCallStrike_FullCount_BottomOfTheNinthAndTwoOuts_HomeTeamLeading_EndsGame() {
@@ -443,5 +442,25 @@ final class GameTests: XCTestCase {
         XCTAssertEqual(sut.currentStrikes, 0)
         XCTAssertEqual(sut.currentBalls, 0)
         XCTAssertEqual(sut.outs, 1)
+    }
+    
+    func testExtraInnings_AddsRunnerOnSecond() {
+        var sut: Game = .mockFullCountTwoOutsWith(half: .bottom, inning: 9, homeTeamScore: 0, awayTeamScore: 0)
+        guard case .call(let pitch) = sut.generatePitch() else {
+            XCTFail()
+            return
+        }
+        sut.makeCall(call: .strike, on: pitch)
+        XCTAssertEqual(sut.halfInning, .top)
+        XCTAssertEqual(sut.inning, 10)
+        XCTAssertNotNil(sut.secondBase.playerOn)
+    }
+    
+    func testSimulate_FinishesGame() {
+        var sut: Game = .liveBatter
+        sut.simulate()
+        XCTAssertNotEqual(sut.homeTeamScore, sut.awayTeamScore)
+        print("\(sut.homeTeamScore) to \(sut.awayTeamScore), finished in \(sut.inning) innings")
+        XCTAssertTrue(sut.isGameOver)
     }
 }

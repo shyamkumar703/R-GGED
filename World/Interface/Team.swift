@@ -87,15 +87,12 @@ extension Team {
     /// For use only in tests where properties of this object don't matter
     static var empty: Self {
         .init(
-            teamName: UUID().uuidString,
-            teamAbbreviation: UUID().uuidString,
+            teamName: "",
+            teamAbbreviation: "",
             teamColorPrimary: "",
             teamColorSecondary: "",
             league: .national,
-            division: .west,
-            roster: [.empty, .empty, .empty],
-            battingOrder: [.empty, .empty, .empty],
-            pitchingRotation: .init(.empty)
+            division: .west
         )
     }
     
