@@ -118,6 +118,9 @@ public struct Game {
         } else if currentBalls == 4 {
             executeWalk()
         }
+        
+        guard let pitch else { return }
+        umpireGame.updateGrade(pitch: pitch, call: call, atBat: atBat)
     }
     
     public mutating func simulate() {
@@ -467,19 +470,41 @@ extension Game {
     }
     
     public struct UmpireGame {
-        var correctCalls: Int
-        var incorrectCalls: Int
-        var homeTeamTilt: Double
-        var awayTeamTilt: Double
-        var umpireGrade: Double
+        public var homeTeamGrade: Int
+        public var awayTeamGrade: Int
+        public var grade: Int
         
-        static var new: Self = .init(
-            correctCalls: 0,
-            incorrectCalls: 0,
-            homeTeamTilt: 0.5,
-            awayTeamTilt: 0.5,
-            umpireGrade: 0.5
-        )
+        public init(
+            homeTeamGrade: Int = 100,
+            awayTeamGrade: Int = 100,
+            grade: Int = 100
+        ) {
+            self.homeTeamGrade = homeTeamGrade
+            self.awayTeamGrade = awayTeamGrade
+            self.grade = grade
+        }
+        
+        static var new: UmpireGame = .init()
+        
+        mutating func updateGrade(pitch: Pitch, call: Pitch.Call, atBat: WhichTeam) {
+            defer { grade = (homeTeamGrade + awayTeamGrade) / 2 }
+            let isPitchOutOfZoneHorizontal = pitch.x < -0.5 || pitch.x > 6.5
+            let isPitchOutOfZoneVertical = pitch.y < -10.5 || pitch.y > 0.5
+            let isPitchABall = isPitchOutOfZoneVertical && isPitchOutOfZoneHorizontal
+            if isPitchABall && call == .strike || !isPitchABall && call == .ball {
+                // call is wrong
+                switch atBat {
+                case .away: awayTeamGrade = max(awayTeamGrade - 10, 0)
+                case .home: homeTeamGrade = max(homeTeamGrade - 10, 0)
+                }
+            } else {
+                // call is correct
+                switch atBat {
+                case .away: awayTeamGrade = min(awayTeamGrade + 2, 100)
+                case .home: homeTeamGrade = min(homeTeamGrade + 2, 100)
+                }
+            }
+        }
     }
     
     public struct Base: Equatable {
@@ -619,7 +644,7 @@ extension Game {
         
         let isPitchOutOfZoneHorizontal = pitch.x < -0.5 || pitch.x > 6.5
         let isPitchOutOfZoneVertical = pitch.y < -10.5 || pitch.y > 0.5
-        if isPitchOutOfZoneHorizontal || isPitchOutOfZoneVertical {
+        if isPitchOutOfZoneHorizontal && isPitchOutOfZoneVertical {
             // pitch is a ball
             let doesPlayerSwing = (Double(player.plateDiscipline) * Double.random(in: 0...1)) > 0.5
             if doesPlayerSwing {
