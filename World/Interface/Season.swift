@@ -7,10 +7,14 @@
 
 import Foundation
 
-public struct Season {
+public struct Season: Cacheable, Equatable, Identifiable {
+    public static var key: CacheKey = .seasons
+    public static var storeOption: CacheStoreOption = .array
+    
     public var year: Int
     public var teams: [Team]
     public var schedule: [PlannedSeries]
+    public var id: Int { year }
     
     public init(teams: [Team] = [], year: Int = 2023) {
         if teams.isEmpty {
@@ -145,7 +149,7 @@ public struct Season {
 }
 
 extension Season {
-    public struct PlannedSeries: CustomStringConvertible, Identifiable {
+    public struct PlannedSeries: CustomStringConvertible, Codable, Equatable, Identifiable {
         public var homeTeam: Team
         public var awayTeam: Team
         public var plannedGames: [PlannedGame]
@@ -220,7 +224,7 @@ extension Season {
         }
     }
     
-    public struct PlannedGame: Equatable {
+    public struct PlannedGame: Codable, Equatable {
         var homeTeam: Team
         var awayTeam: Team
         var id: UUID = UUID()

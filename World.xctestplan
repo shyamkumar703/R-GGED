@@ -17,7 +17,16 @@
           "name" : "World"
         }
       ]
-    }
+    },
+    "commandLineArgumentEntries" : [
+
+    ],
+    "environmentVariableEntries" : [
+      {
+        "key" : "shouldTestCache",
+        "value" : "false"
+      }
+    ]
   },
   "testTargets" : [
     {

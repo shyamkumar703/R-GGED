@@ -6,6 +6,7 @@
 //
 
 @testable import World
+import Foundation
 import XCTest
 
 final class SeasonTests: XCTestCase {
@@ -44,5 +45,39 @@ final class SeasonTests: XCTestCase {
                 .count
             XCTAssertEqual(interleagueGames, 45)
         }
+    }
+    
+    func testCacheSeason_WorksAsExpected() {
+        guard let shouldTestCache = ProcessInfo.processInfo.environment["shouldTestCache"],
+           shouldTestCache == "true" else {
+            // skip long-running cache test in this case
+            return
+        }
+        
+        Season.clearCache()
+        guard case .array(let cachedArrayAfterFirstClear) = Season.read() else {
+            XCTFail()
+            return
+        }
+        XCTAssertEqual(cachedArrayAfterFirstClear.count, 0)
+        
+        let sut: Season = .init()
+        sut.store()
+        guard case .array(let cachedSutArray) = Season.read() else {
+            XCTFail()
+            return
+        }
+        guard let cachedSut = cachedSutArray.first else {
+            XCTFail()
+            return
+        }
+        XCTAssertEqual(cachedSut, sut)
+        
+        Season.clearCache()
+        guard case .array(let cachedArrayAfterSecondClear) = Season.read() else {
+            XCTFail()
+            return
+        }
+        XCTAssertEqual(cachedArrayAfterSecondClear.count, 0)
     }
 }
