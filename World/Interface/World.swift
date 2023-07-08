@@ -34,6 +34,7 @@ public protocol Cacheable: Codable {
 }
 
 public extension Cacheable {
+    // TODO: - Move cache store onto bg thread, currently too slow
     static var storeOption: CacheStoreOption { .object }
     
     func store() {

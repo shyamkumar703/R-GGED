@@ -49,7 +49,7 @@ final class SeasonTests: XCTestCase {
     
     func testCacheSeason_WorksAsExpected() {
         guard let shouldTestCache = ProcessInfo.processInfo.environment["shouldTestCache"],
-           shouldTestCache == "true" else {
+              shouldTestCache == "true" else {
             // skip long-running cache test in this case
             return
         }
@@ -79,5 +79,28 @@ final class SeasonTests: XCTestCase {
             return
         }
         XCTAssertEqual(cachedArrayAfterSecondClear.count, 0)
+    }
+    
+    func testCacheSeason_AfterGameSimulation_WorksAsExpected() {
+        guard let shouldTestCache = ProcessInfo.processInfo.environment["shouldTestCache"],
+              shouldTestCache == "true" else {
+            // skip long-running cache test in this case
+            return
+        }
+        Season.clearCache()
+        var sut = Season()
+        sut.schedule[0].plannedGames[0].simulate()
+        XCTAssertNotNil(sut.schedule.first?.plannedGames.first?.game)
+        sut.store()
+        guard case .array(let cachedSutArray) = Season.read() else {
+            XCTFail()
+            return
+        }
+        guard let cachedSut = cachedSutArray.first else {
+            XCTFail()
+            return
+        }
+        XCTAssertEqual(sut, cachedSut)
+        Season.clearCache()
     }
 }

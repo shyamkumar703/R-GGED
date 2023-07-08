@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct Game: Codable {
+public struct Game: Codable, Equatable {
     public var homeTeam: Team
     public var awayTeam: Team
     public var currentBatter: Player
@@ -25,6 +25,26 @@ public struct Game: Codable {
     public var homeTeamPitcherPitchCount = 0
     public var awayTeamPitcherPitchCount = 0
     public var isGameOver = false
+    
+    public static func == (lhs: Game, rhs: Game) -> Bool {
+        lhs.homeTeam == rhs.homeTeam &&
+        lhs.awayTeam == rhs.awayTeam &&
+        lhs.currentBatter == rhs.currentBatter &&
+        lhs.homeTeamScore == rhs.homeTeamScore &&
+        lhs.awayTeamScore == rhs.awayTeamScore &&
+        lhs.halfInning == rhs.halfInning &&
+        lhs.inning == rhs.inning &&
+        lhs.outs == rhs.outs &&
+        lhs.firstBase == rhs.firstBase &&
+        lhs.secondBase == rhs.secondBase &&
+        lhs.thirdBase == rhs.thirdBase &&
+        lhs.currentBalls == rhs.currentBalls &&
+        lhs.currentStrikes == rhs.currentStrikes &&
+        lhs.umpireGame == rhs.umpireGame &&
+        lhs.homeTeamPitcherPitchCount == rhs.homeTeamPitcherPitchCount &&
+        lhs.awayTeamPitcherPitchCount == rhs.awayTeamPitcherPitchCount &&
+        lhs.isGameOver == rhs.isGameOver
+    }
     
     public var currentPitcher: Player {
         switch pitching {
@@ -493,7 +513,7 @@ extension Game {
         }
     }
     
-    public struct UmpireGame: Codable {
+    public struct UmpireGame: Codable, Equatable {
         public var homeTeamGrade: Int
         public var awayTeamGrade: Int
         public var grade: Int
@@ -561,7 +581,7 @@ extension Game {
         }
     }
     
-    public enum HalfInning: String, Codable {
+    public enum HalfInning: String, Codable, Equatable {
         case top
         case bottom
         

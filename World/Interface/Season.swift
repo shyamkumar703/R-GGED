@@ -229,6 +229,13 @@ extension Season {
         var awayTeam: Team
         var id: UUID = UUID()
         var seriesId: UUID
+        var game: Game?
         // TODO: - Add date at a later time
+        
+        public mutating func simulate() {
+            var game: Game = .init(homeTeam: homeTeam, awayTeam: awayTeam)
+            game.simulate()
+            self.game = game
+        }
     }
 }
