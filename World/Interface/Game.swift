@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct Game {
+public struct Game: Codable {
     public var homeTeam: Team
     public var awayTeam: Team
     public var currentBatter: Player
@@ -46,13 +46,37 @@ public struct Game {
         atBat.not
     }
     
-    private var generateRandomPitch: () -> Pitch
-    private var batterResult: (Pitch, Player) -> Pitch.BatterResult?
+    private var generateRandomPitch: () -> Pitch = generateRandomPitchLive
+    private var batterResult: (Pitch, Player) -> Pitch.BatterResult? = batterResultLive(pitch:player:)
     
     private var homeTeamBattingOrder: NonEmptyCircularArray<Player>
     private var awayTeamBattingOrder: NonEmptyCircularArray<Player>
     private var homeTeamPitcher: Player
     private var awayTeamPitcher: Player
+    
+    public enum CodingKeys: String, CodingKey {
+        case homeTeam
+        case awayTeam
+        case currentBatter
+        case homeTeamScore
+        case awayTeamScore
+        case halfInning
+        case inning
+        case outs
+        case firstBase
+        case secondBase
+        case thirdBase
+        case currentBalls
+        case currentStrikes
+        case umpireGame
+        case homeTeamPitcherPitchCount
+        case awayTeamPitcherPitchCount
+        case isGameOver
+        case homeTeamBattingOrder
+        case awayTeamBattingOrder
+        case homeTeamPitcher
+        case awayTeamPitcher
+    }
     
     init(
         homeTeam: Team,
@@ -441,7 +465,7 @@ extension Game {
             case ball
         }
         
-        public enum BatterResult {
+        public enum BatterResult: Codable {
             case swingAndMiss
             case foul
             case single
@@ -469,10 +493,16 @@ extension Game {
         }
     }
     
-    public struct UmpireGame {
+    public struct UmpireGame: Codable {
         public var homeTeamGrade: Int
         public var awayTeamGrade: Int
         public var grade: Int
+        
+        public enum CodingKeys: String, CodingKey {
+            case homeTeamGrade
+            case awayTeamGrade
+            case grade
+        }
         
         public init(
             homeTeamGrade: Int = 100,
@@ -507,11 +537,16 @@ extension Game {
         }
     }
     
-    public struct Base: Equatable {
+    public struct Base: Codable, Equatable {
         var playerOn: Player?
         var pitcherResponsible: Player?
         
         static var empty: Self = .init()
+        
+        public enum CodingKeys: String, CodingKey {
+            case playerOn
+            case pitcherResponsible
+        }
     }
     
     public enum WhichTeam {
@@ -526,7 +561,7 @@ extension Game {
         }
     }
     
-    public enum HalfInning {
+    public enum HalfInning: String, Codable {
         case top
         case bottom
         

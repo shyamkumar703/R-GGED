@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct NonEmptyCircularArray<Element> {
+public struct NonEmptyCircularArray<Element: Codable>: Codable {
     private var head: Element
     private var tail: [Element]
     

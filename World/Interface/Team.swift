@@ -5,9 +5,7 @@
 //  Created by Shyam Kumar on 6/30/23.
 //
 
-import SwiftUI
-
-public struct Team: Equatable, Identifiable, Hashable {
+public struct Team: Equatable, Identifiable, Hashable, Codable {
     public var id: String {
         teamName
     }
@@ -20,6 +18,18 @@ public struct Team: Equatable, Identifiable, Hashable {
     var roster: [Player]
     var battingOrder: [Player]
     var pitchingRotation: NonEmptyCircularArray<Player>
+    
+    public enum CodingKeys: String, CodingKey {
+        case teamName
+        case teamAbbreviation
+        case teamColorPrimary
+        case teamColorSecondary
+        case league
+        case division
+        case roster
+        case battingOrder
+        case pitchingRotation
+    }
     
     init(
         teamName: String,
@@ -67,12 +77,12 @@ public struct Team: Equatable, Identifiable, Hashable {
     }
 }
 
-public enum League {
+public enum League: String, Codable {
     case national
     case american
 }
 
-public enum Division: CaseIterable {
+public enum Division: String, CaseIterable, Codable {
     case east
     case central
     case west
@@ -139,7 +149,7 @@ extension Team {
     }
 }
 
-public struct Player: Identifiable, Equatable {
+public struct Player: Identifiable, Equatable, Codable {
     public var id: UUID
     public var firstName: String
     public var lastName: String
@@ -150,6 +160,7 @@ public struct Player: Identifiable, Equatable {
     public var contactPercentage: Int // between 1 and 100
     public var power: Int // between 1 and 100
     public var plateDiscipline: Int // between 1 and 100
+    public var seasonAtBats: [SeasonAtBat] = []
     var overall: Int {
         (speed + contactPercentage + power + plateDiscipline) / 4
     }
@@ -160,7 +171,23 @@ public struct Player: Identifiable, Equatable {
         (pitchingPower + pitchingControl) / 2
     }
     
-    public enum Position: CaseIterable, Equatable {
+    public enum CodingKeys: String, CodingKey {
+        case id
+        case firstName
+        case lastName
+        case position
+        case age
+        case draftYear
+        case speed
+        case contactPercentage
+        case power
+        case plateDiscipline
+        case seasonAtBats
+        case pitchingControl
+        case pitchingPower
+    }
+    
+    public enum Position: String, CaseIterable, Codable, Equatable {
         case pitcher
         case firstBase
         case secondBase
@@ -205,6 +232,31 @@ public struct Player: Identifiable, Equatable {
         }
         
         return roster
+    }
+    
+    public struct SeasonAtBat: Equatable, Identifiable, Codable {
+        public var pitcherId: UUID
+        public var gameId: UUID
+        public var opposingTeamId: UUID
+        public var result: Game.Pitch.BatterResult
+        public var seasonYear: Int
+        public var id: UUID
+        
+        init(
+            pitcherId: UUID,
+            gameId: UUID,
+            opposingTeamId: UUID,
+            result: Game.Pitch.BatterResult,
+            seasonYear: Int,
+            id: UUID = UUID()
+        ) {
+            self.pitcherId = pitcherId
+            self.gameId = gameId
+            self.opposingTeamId = opposingTeamId
+            self.result = result
+            self.seasonYear = seasonYear
+            self.id = id
+        }
     }
 }
 
