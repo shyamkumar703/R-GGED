@@ -7,6 +7,9 @@
 
 import Foundation
 
+public typealias WriteResult = Result<Bool, Error>
+public typealias WriteCompletion = (WriteResult) -> Void
+
 public enum CacheStoreOption: String, Codable {
     case object
     case array
@@ -28,7 +31,7 @@ public enum CacheReadResult<T: Cacheable> {
 public protocol Cacheable: Codable {
     static var key: CacheKey { get }
     static var storeOption: CacheStoreOption { get }
-    func store()
+    func store(completion: @escaping WriteCompletion)
     static func read() -> CacheReadResult<Self>
     static func clearCache()
 }
@@ -37,13 +40,13 @@ public extension Cacheable {
     // TODO: - Move cache store onto bg thread, currently too slow
     static var storeOption: CacheStoreOption { .object }
     
-    func store() {
+    func store(completion: @escaping WriteCompletion = { _ in }) {
         switch Self.storeOption {
         case .object:
             save(self)
         case .array:
             let arrayToSave = Self.read(type: [Self].self) ?? []
-            save(arrayToSave + [self])
+            save(arrayToSave + [self], completion: completion)
         }
     }
     
@@ -69,13 +72,20 @@ public extension Cacheable {
         }
     }
     
-    private func save<T: Codable>(_ obj: T) {
-        do {
-            let data = try JSONEncoder().encode(obj)
-            try data.write(to: Self.key.path)
-        } catch {
-            print("Unable to save!!!")
-            fatalError()
+    private func save<T: Codable>(
+        _ obj: T,
+        completion: @escaping WriteCompletion = { _ in }
+    ) {
+        DispatchQueue.main.async {
+            do {
+                let data = try JSONEncoder().encode(obj)
+                try data.write(to: Self.key.path)
+                completion(.success(true))
+            } catch {
+                print("Unable to save!!!")
+                completion(.failure(error))
+                fatalError()
+            }
         }
     }
     

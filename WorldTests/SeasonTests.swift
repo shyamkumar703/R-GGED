@@ -62,7 +62,10 @@ final class SeasonTests: XCTestCase {
         XCTAssertEqual(cachedArrayAfterFirstClear.count, 0)
         
         let sut: Season = .init()
-        sut.store()
+        let expectation = XCTestExpectation(description: "Wait to store..")
+        sut.store { _ in expectation.fulfill() }
+        wait(for: [expectation])
+        
         guard case .array(let cachedSutArray) = Season.read() else {
             XCTFail()
             return
@@ -91,7 +94,11 @@ final class SeasonTests: XCTestCase {
         var sut = Season()
         sut.schedule[0].plannedGames[0].simulate()
         XCTAssertNotNil(sut.schedule.first?.plannedGames.first?.game)
-        sut.store()
+        
+        let expectation = XCTestExpectation(description: "Wait to store..")
+        sut.store { _ in expectation.fulfill() }
+        wait(for: [expectation])
+        
         guard case .array(let cachedSutArray) = Season.read() else {
             XCTFail()
             return
