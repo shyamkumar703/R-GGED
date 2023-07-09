@@ -21,7 +21,7 @@ public struct Game: Codable, Equatable {
     public var thirdBase: Base
     public var currentBalls: Int
     public var currentStrikes: Int
-    public var umpireGame: UmpireGame
+    public var optionalUmpireGame: OptionalUmpireGame
     public var homeTeamPitcherPitchCount = 0
     public var awayTeamPitcherPitchCount = 0
     public var isGameOver = false
@@ -40,7 +40,7 @@ public struct Game: Codable, Equatable {
         lhs.thirdBase == rhs.thirdBase &&
         lhs.currentBalls == rhs.currentBalls &&
         lhs.currentStrikes == rhs.currentStrikes &&
-        lhs.umpireGame == rhs.umpireGame &&
+        lhs.optionalUmpireGame == rhs.optionalUmpireGame &&
         lhs.homeTeamPitcherPitchCount == rhs.homeTeamPitcherPitchCount &&
         lhs.awayTeamPitcherPitchCount == rhs.awayTeamPitcherPitchCount &&
         lhs.isGameOver == rhs.isGameOver
@@ -88,7 +88,7 @@ public struct Game: Codable, Equatable {
         case thirdBase
         case currentBalls
         case currentStrikes
-        case umpireGame
+        case optionalUmpireGame
         case homeTeamPitcherPitchCount
         case awayTeamPitcherPitchCount
         case isGameOver
@@ -111,7 +111,7 @@ public struct Game: Codable, Equatable {
         thirdBase: Base = .empty,
         currentBalls: Int = 0,
         currentStrikes: Int = 0,
-        umpireGame: UmpireGame = .new,
+        umpireGame: OptionalUmpireGame = .none,
         generateRandomPitch: @escaping () -> Pitch = generateRandomPitchLive,
         batterResult: @escaping (Pitch, Player) -> Pitch.BatterResult? = batterResultLive
     ) {
@@ -127,7 +127,7 @@ public struct Game: Codable, Equatable {
         self.thirdBase = thirdBase
         self.currentBalls = currentBalls
         self.currentStrikes = currentStrikes
-        self.umpireGame = umpireGame
+        self.optionalUmpireGame = umpireGame
         self.generateRandomPitch = generateRandomPitch
         self.batterResult = batterResult
         
@@ -136,6 +136,10 @@ public struct Game: Codable, Equatable {
         self.currentBatter = self.awayTeamBattingOrder.getFirst()
         self.homeTeamPitcher = self.homeTeam.pitchingRotation.getFirst()
         self.awayTeamPitcher = self.awayTeam.pitchingRotation.getFirst()
+    }
+    
+    mutating func addUmpireGame() {
+        self.optionalUmpireGame = .some(.new)
     }
     
     public mutating func generatePitch() -> Pitch.PitchResult {
@@ -163,8 +167,11 @@ public struct Game: Codable, Equatable {
             executeWalk()
         }
         
-        guard let pitch else { return }
+        guard let pitch,
+              case .some(var umpireGame) = self.optionalUmpireGame else { return }
+        
         umpireGame.updateGrade(pitch: pitch, call: call, atBat: atBat)
+        self.optionalUmpireGame = .some(umpireGame)
     }
     
     public mutating func simulate() {
@@ -513,6 +520,18 @@ extension Game {
         }
     }
     
+    public enum OptionalUmpireGame: Codable, Equatable {
+        case none
+        case some(UmpireGame)
+        
+        var umpireGame: UmpireGame? {
+            switch self {
+            case .none: return nil
+            case .some(let umpireGame): return umpireGame
+            }
+        }
+    }
+    
     public struct UmpireGame: Codable, Equatable {
         public var homeTeamGrade: Int
         public var awayTeamGrade: Int
@@ -595,6 +614,20 @@ extension Game {
 }
 
 extension Game {
+    static var mockWithUmpireGame: Self {
+        .init(homeTeam: .empty, awayTeam: .empty, umpireGame: .some(.new))
+    }
+    
+    static func mockWithUmpireGame(generateRandomPitch: @escaping () -> Pitch = generateRandomPitchLive) -> Self {
+        .init(
+            homeTeam: .empty,
+            awayTeam: .empty,
+            umpireGame: .some(.new),
+            generateRandomPitch: generateRandomPitch,
+            batterResult: { _, _ in nil }
+        )
+    }
+    
     static func mock(generateRandomPitch: @escaping () -> Pitch = generateRandomPitchLive) -> Self {
         .init(
             homeTeam: .empty,
