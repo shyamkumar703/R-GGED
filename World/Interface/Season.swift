@@ -16,15 +16,34 @@ public struct Season: Cacheable, Equatable, Identifiable {
     public var schedule: [PlannedSeries]
     public var id: Int { year }
     
-    public init(teams: [Team] = [], year: Int = 2023) {
+    public init(
+        teams: [Team] = [],
+        year: Int = 2023,
+        userSelectedTeam: Team? = Self.teams.first,
+        umpireGamesToGenerate: Int = 30
+    ) {
         if teams.isEmpty {
-            self.teams = Self.generateTeams()
+            self.teams = Self.teams
         } else {
             self.teams = teams
         }
         
         self.year = year
-        self.schedule = Self.generateSchedule(for: self.teams).shuffled()
+        var intermediateSchedule = Self.generateSchedule(for: self.teams).shuffled()
+        
+        // add umpire games
+        for index in 0..<umpireGamesToGenerate {
+            var seriesToAddUmpireGameTo = intermediateSchedule[index]
+            let gameIndextoAddUmpireGameTo = Int.random(
+                in: 0..<seriesToAddUmpireGameTo.games
+            )
+            seriesToAddUmpireGameTo
+                .plannedGames[gameIndextoAddUmpireGameTo]
+                .shouldCreateUmpireGame = true
+            intermediateSchedule[index] = seriesToAddUmpireGameTo
+        }
+        
+        self.schedule = intermediateSchedule
     }
     
     private static func generateSchedule(for teams: [Team]) -> [PlannedSeries] {
@@ -230,12 +249,22 @@ extension Season {
         var id: UUID = UUID()
         var seriesId: UUID
         var game: Game?
+        var shouldCreateUmpireGame: Bool = false
         // TODO: - Add date at a later time
         
         public mutating func simulate() {
+            guard !shouldCreateUmpireGame else { fatalError() }
             var game: Game = .init(homeTeam: homeTeam, awayTeam: awayTeam)
             game.simulate()
             self.game = game
+        }
+        
+        public mutating func createGame() {
+            self.game = .init(
+                homeTeam: homeTeam,
+                awayTeam: awayTeam,
+                umpireGame: shouldCreateUmpireGame ? .some(.new) : .none
+            )
         }
     }
 }

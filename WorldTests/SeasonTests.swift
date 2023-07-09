@@ -47,6 +47,16 @@ final class SeasonTests: XCTestCase {
         }
     }
     
+    func testGenerateSchedule_AddsUmpireGamesCorrectly() {
+        let sut = Season(umpireGamesToGenerate: 30)
+        XCTAssertEqual(
+            sut.schedule.flatten().reduce(0, { inter, curr in
+                curr.shouldCreateUmpireGame ? inter + 1 : inter
+            }),
+            30
+        )
+    }
+    
     func testCacheSeason_WorksAsExpected() {
         guard let shouldTestCache = ProcessInfo.processInfo.environment["shouldTestCache"],
               shouldTestCache == "true" else {
