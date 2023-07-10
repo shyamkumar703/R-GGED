@@ -8,35 +8,55 @@
 import Foundation
 
 /// 1-indexed array that performs a "soft-delete" on elements
-public struct FixedLengthArray<Element: Codable>: Codable {
-    struct DeletableElement: Codable {
+public struct FixedLengthArray<Element: Codable & Equatable>: Codable, Equatable {
+    struct DeletableElement: Codable, Equatable {
         var element: Element
         var isDeleted: Bool = false
     }
     
-    private var elements: [DeletableElement]
+    private var _elements: [DeletableElement]
+    public var elements: [Element] {
+        _elements
+            .filter({ !$0.isDeleted })
+            .map({ $0.element })
+    }
     
     public init(_ elements: Element...) {
-        self.elements = elements.map({ .init(element: $0) })
+        self._elements = elements.map({ .init(element: $0) })
     }
     
     public init(_ elements: [Element]) {
-        self.elements = elements.map({ .init(element: $0) })
+        self._elements = elements.map({ .init(element: $0) })
     }
     
     public func get(_ index: Int) -> Element? {
-        guard index <= elements.count && index > 0 else { fatalError() }
-        let deletableElement = elements[index - 1]
+        guard index <= _elements.count && index > 0 else { fatalError() }
+        let deletableElement = _elements[index - 1]
         guard !deletableElement.isDeleted else { return nil }
         return deletableElement.element
     }
     
     public mutating func remove(_ index: Int) {
-        guard index <= elements.count && index > 0 else { fatalError() }
-        let deletableElement = elements[index - 1]
+        guard index <= _elements.count && index > 0 else { fatalError() }
+        let deletableElement = _elements[index - 1]
         guard !deletableElement.isDeleted else {
             fatalError("Cannot delete element that has already been deleted")
         }
-        elements[index - 1].isDeleted = true
+        _elements[index - 1].isDeleted = true
+    }
+    
+    /// Unsafe accessor - use `get` for safe optional return value
+    public subscript(index: Int) -> Element {
+        return get(index)!
+    }
+}
+
+extension FixedLengthArray where Element: Identifiable {
+    public mutating func remove(_ element: Element) {
+        guard let index = _elements.firstIndex(where: { $0.element == element }) else {
+            fatalError("Element with id \(element.id) not in array")
+        }
+        
+        self.remove(index)
     }
 }

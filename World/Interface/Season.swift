@@ -14,7 +14,11 @@ public struct Season: Cacheable, Equatable, Identifiable {
     public var year: Int
     public var teams: [Team]
     public var schedule: [PlannedSeries]
+    public var playoffSchedule: [PlannedSeries] = []
     public var id: Int { year }
+    
+    var nationalLeaguePlayoffTeams: FixedLengthArray<Team> = .init()
+    var americanLeaguePlayoffTeams: FixedLengthArray<Team> = .init()
     
     public var isSeasonOver: Bool {
         schedule.filter({ !$0.isSeriesOver }).count == 0
@@ -169,54 +173,6 @@ public struct Season: Cacheable, Equatable, Identifiable {
             .filter({ $0.contains(team: opponent) && $0.contains(team: currentTeam) })
             .reduce(0, { partialResult, series in partialResult + series.plannedGames.count})
     }
-    
-    // MARK: - Playoffs
-    struct Record: Comparable, Equatable {
-        var wins: Int
-        var losses: Int
-        var team: Team
-        
-        static func < (lhs: Season.Record, rhs: Season.Record) -> Bool {
-            lhs.wins < rhs.wins
-        }
-    }
-    
-    public func generatePlayoffs() {
-        guard isSeasonOver else { fatalError("season is not over") }
-        let nationalLeagueSeeding = getPlayoffTeams(for: .national)
-        let americanLeagueSeeding = getPlayoffTeams(for: .american)
-    }
-    
-    func getPlayoffTeams(for league: League) -> [Team] {
-        // TODO: - Edge cases (like ties, etc.)
-        let leagueStandings = Array(
-            Self.teams
-                .map({ schedule.record(for: $0) })
-                .sorted()
-                .reversed()
-        )
-        let divisionWinners = Division
-            .allCases
-            .compactMap({ division in
-                leagueStandings.first(
-                    where: { record in
-                        record.team.division == division
-                    }
-                )
-            })
-        guard divisionWinners.count == Division.allCases.count else { fatalError() }
-        let wildCardTeams = Array(
-            leagueStandings
-                .filter({ currentRecord in
-                    !divisionWinners.contains(where: { record in
-                        record.team == currentRecord.team
-                    })
-                })
-                .prefix(3)
-        )
-        
-        return (divisionWinners + wildCardTeams).map({ $0.team })
-    }
 }
 
 extension Season {
@@ -225,6 +181,7 @@ extension Season {
         public var awayTeam: Team
         public var plannedGames: [PlannedGame]
         public var id: UUID
+        public var playoffSeries: PlayoffSeries?
         
         public var isSeriesOver: Bool {
             plannedGames.filter({ !$0.isGameOver }).count == 0
@@ -246,8 +203,27 @@ extension Season {
             !isDivisionalSeries && !isLeagueSeries
         }
         
+        var playoffSeriesLeague: League? {
+            guard playoffSeries != nil else { return nil }
+            guard homeTeam.league == awayTeam.league else { return nil }
+            return homeTeam.league
+        }
+        
         public var description: String {
             "\(awayTeam.teamName) at \(homeTeam.teamName) · \(plannedGames.count) game series"
+        }
+        
+        public var seriesWinner: Team {
+            guard plannedGames.filter({ !$0.isGameOver }).isEmpty else { fatalError() }
+            let homeTeamWins = plannedGames.reduce(0, { inter, game in
+                if Team.isSameTeam(game.winningTeam, homeTeam) {
+                    return inter + 1
+                } else {
+                    return inter
+                }
+            })
+            let awayTeamWins = games - homeTeamWins
+            return homeTeamWins > awayTeamWins ? homeTeam : awayTeam
         }
         
         init(id: UUID = UUID(), homeTeam: Team, awayTeam: Team, games: Int = 3) {
@@ -303,6 +279,18 @@ extension Season {
                 fatalError("Team \(team.teamName) not participating in series")
             }
         }
+        
+        public enum PlayoffSeries: Codable, Equatable {
+            case wildCard(WildCardSeries)
+            case divisional
+            case league
+            case world
+        }
+        
+        public enum WildCardSeries: Codable, Equatable {
+            case fiveAtFour
+            case sixAtThree
+        }
     }
     
     public struct PlannedGame: Codable, Equatable {
@@ -316,6 +304,12 @@ extension Season {
         
         var isGameOver: Bool {
             game?.isGameOver == true
+        }
+        
+        var winningTeam: Team {
+            guard let game,
+                  isGameOver else { fatalError() }
+            return game.winningTeam
         }
         
         public mutating func simulate() {

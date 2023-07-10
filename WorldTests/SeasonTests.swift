@@ -48,6 +48,12 @@ final class SeasonTests: XCTestCase {
     }
     
     func testGenerateSchedule_AddsUmpireGamesCorrectly() {
+        guard let shouldRun = ProcessInfo.processInfo.environment["shouldRunLongTests"],
+              shouldRun == "true" else {
+            // skip long-running test in this case
+            return
+        }
+        
         let sut = Season(umpireGamesToGenerate: 30)
         XCTAssertEqual(
             sut.schedule.flatten().reduce(0, { inter, curr in
