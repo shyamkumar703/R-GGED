@@ -29,6 +29,24 @@ extension Array where Element == Season.PlannedSeries {
         })
     }
     
+    func record(for team: Team) -> Season.Record {
+        let teamGames = flatten().filter({ $0.contains(team: team) })
+        var wins = 0
+        var losses = 0
+        for plannedGame in teamGames {
+            guard let game = plannedGame.game else { fatalError() }
+            if Team.isSameTeam(team, game.winningTeam) {
+                wins += 1
+            } else if Team.isSameTeam(team, game.losingTeam) {
+                losses += 1
+            } else {
+                fatalError()
+            }
+        }
+        
+        return .init(wins: wins, losses: losses, team: team)
+    }
+    
     func matchups(team: Team, again division: Division) -> (sevenGameSeries: Int, sixGameSeries: Int, teamMatchups: [Team]) {
         let filteredSeries = filter({ $0.contains(team: team) && $0.not(team: team).division == division })
         var dictionary = [Team: Int]()

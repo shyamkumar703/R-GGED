@@ -66,6 +66,16 @@ public struct Game: Codable, Equatable {
         atBat.not
     }
     
+    public var winningTeam: Team {
+        guard isGameOver else { fatalError() }
+        return homeTeamScore > awayTeamScore ? homeTeam : awayTeam
+    }
+    
+    public var losingTeam: Team {
+        guard isGameOver else { fatalError() }
+        return homeTeamScore > awayTeamScore ? awayTeam : homeTeam
+    }
+    
     private var generateRandomPitch: () -> Pitch = generateRandomPitchLive
     private var batterResult: (Pitch, Player) -> Pitch.BatterResult? = batterResultLive(pitch:player:)
     

@@ -58,8 +58,8 @@ final class SeasonTests: XCTestCase {
     }
     
     func testCacheSeason_WorksAsExpected() {
-        guard let shouldTestCache = ProcessInfo.processInfo.environment["shouldTestCache"],
-              shouldTestCache == "true" else {
+        guard let shouldRun = ProcessInfo.processInfo.environment["shouldRunLongTests"],
+              shouldRun == "true" else {
             // skip long-running cache test in this case
             return
         }
@@ -95,8 +95,8 @@ final class SeasonTests: XCTestCase {
     }
     
     func testCacheSeason_AfterGameSimulation_WorksAsExpected() {
-        guard let shouldTestCache = ProcessInfo.processInfo.environment["shouldTestCache"],
-              shouldTestCache == "true" else {
+        guard let shouldRun = ProcessInfo.processInfo.environment["shouldRunLongTests"],
+              shouldRun == "true" else {
             // skip long-running cache test in this case
             return
         }
@@ -119,5 +119,22 @@ final class SeasonTests: XCTestCase {
         }
         XCTAssertEqual(sut, cachedSut)
         Season.clearCache()
+    }
+    
+    // MARK: - Playoff tests
+    func testGetPlayoffTeams_GeneratesSixTeamsForEachLeague() {
+        guard let shouldRun = ProcessInfo.processInfo.environment["shouldRunLongTests"],
+              shouldRun == "true" else {
+            // skip long-running test in this case
+            return
+        }
+        
+        var sut = Season(umpireGamesToGenerate: 0)
+        for index in 0..<sut.schedule.count {
+            sut.schedule[index].simulate()
+        }
+        
+        XCTAssertEqual(sut.getPlayoffTeams(for: .national).count, 6)
+        XCTAssertEqual(sut.getPlayoffTeams(for: .american).count, 6)
     }
 }

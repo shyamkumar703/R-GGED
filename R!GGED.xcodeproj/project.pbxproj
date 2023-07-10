@@ -32,6 +32,7 @@
 		2D1E451A2A50DEE9003F9C1D /* GroundOutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1E45192A50DEE9003F9C1D /* GroundOutTests.swift */; };
 		2D1E451C2A50E0BF003F9C1D /* FlyOutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D1E451B2A50E0BF003F9C1D /* FlyOutTests.swift */; };
 		2D70AB2F2A59AB60005ACE62 /* Encodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D70AB2E2A59AB60005ACE62 /* Encodable.swift */; };
+		2D8E1A582A5B979000F118A9 /* FixedLengthArray.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8E1A572A5B979000F118A9 /* FixedLengthArray.swift */; };
 		2D8E87A42A51023600A0214F /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8E87A32A51023600A0214F /* Constants.swift */; };
 		2DB06B2C2A51EB61008588D7 /* PlayerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB06B2B2A51EB61008588D7 /* PlayerTests.swift */; };
 		2DE7085D2A52595B0097F623 /* SeasonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE7085C2A52595B0097F623 /* SeasonTests.swift */; };
@@ -118,6 +119,7 @@
 		2D1E45192A50DEE9003F9C1D /* GroundOutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroundOutTests.swift; sourceTree = "<group>"; };
 		2D1E451B2A50E0BF003F9C1D /* FlyOutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlyOutTests.swift; sourceTree = "<group>"; };
 		2D70AB2E2A59AB60005ACE62 /* Encodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Encodable.swift; sourceTree = "<group>"; };
+		2D8E1A572A5B979000F118A9 /* FixedLengthArray.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FixedLengthArray.swift; sourceTree = "<group>"; };
 		2D8E87A32A51023600A0214F /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		2DB06B2B2A51EB61008588D7 /* PlayerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerTests.swift; sourceTree = "<group>"; };
 		2DD7A6CA2A50AB2C00305F55 /* World.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = World.xctestplan; sourceTree = "<group>"; };
@@ -272,6 +274,7 @@
 			children = (
 				01C2A71D2A4F6DDF004F701D /* NonEmptyCircularArray.swift */,
 				2D70AB2E2A59AB60005ACE62 /* Encodable.swift */,
+				2D8E1A572A5B979000F118A9 /* FixedLengthArray.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -509,6 +512,7 @@
 				01C2A7172A4F5CA2004F701D /* World.swift in Sources */,
 				2D0C2EF82A547B5E003F5D96 /* ArrayExtension.swift in Sources */,
 				01C2A7192A4F6C3B004F701D /* Game.swift in Sources */,
+				2D8E1A582A5B979000F118A9 /* FixedLengthArray.swift in Sources */,
 				01C2A6FB2A4F5C71004F701D /* World.docc in Sources */,
 				2DFE2B482A522B6800DD1D32 /* Season.swift in Sources */,
 				2D0C2EF42A547A9A003F5D96 /* Season+GenerateTeams.swift in Sources */,

@@ -23,7 +23,7 @@
     ],
     "environmentVariableEntries" : [
       {
-        "key" : "shouldTestCache",
+        "key" : "shouldRunLongTests",
         "value" : "false"
       }
     ]

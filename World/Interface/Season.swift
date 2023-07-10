@@ -16,6 +16,10 @@ public struct Season: Cacheable, Equatable, Identifiable {
     public var schedule: [PlannedSeries]
     public var id: Int { year }
     
+    public var isSeasonOver: Bool {
+        schedule.filter({ !$0.isSeriesOver }).count == 0
+    }
+    
     public init(
         teams: [Team] = [],
         year: Int = 2023,
@@ -165,6 +169,54 @@ public struct Season: Cacheable, Equatable, Identifiable {
             .filter({ $0.contains(team: opponent) && $0.contains(team: currentTeam) })
             .reduce(0, { partialResult, series in partialResult + series.plannedGames.count})
     }
+    
+    // MARK: - Playoffs
+    struct Record: Comparable, Equatable {
+        var wins: Int
+        var losses: Int
+        var team: Team
+        
+        static func < (lhs: Season.Record, rhs: Season.Record) -> Bool {
+            lhs.wins < rhs.wins
+        }
+    }
+    
+    public func generatePlayoffs() {
+        guard isSeasonOver else { fatalError("season is not over") }
+        let nationalLeagueSeeding = getPlayoffTeams(for: .national)
+        let americanLeagueSeeding = getPlayoffTeams(for: .american)
+    }
+    
+    func getPlayoffTeams(for league: League) -> [Team] {
+        // TODO: - Edge cases (like ties, etc.)
+        let leagueStandings = Array(
+            Self.teams
+                .map({ schedule.record(for: $0) })
+                .sorted()
+                .reversed()
+        )
+        let divisionWinners = Division
+            .allCases
+            .compactMap({ division in
+                leagueStandings.first(
+                    where: { record in
+                        record.team.division == division
+                    }
+                )
+            })
+        guard divisionWinners.count == Division.allCases.count else { fatalError() }
+        let wildCardTeams = Array(
+            leagueStandings
+                .filter({ currentRecord in
+                    !divisionWinners.contains(where: { record in
+                        record.team == currentRecord.team
+                    })
+                })
+                .prefix(3)
+        )
+        
+        return (divisionWinners + wildCardTeams).map({ $0.team })
+    }
 }
 
 extension Season {
@@ -173,6 +225,10 @@ extension Season {
         public var awayTeam: Team
         public var plannedGames: [PlannedGame]
         public var id: UUID
+        
+        public var isSeriesOver: Bool {
+            plannedGames.filter({ !$0.isGameOver }).count == 0
+        }
         
         public var games: Int {
             plannedGames.count
@@ -208,6 +264,12 @@ extension Season {
                     seriesId: id
                 )
             })
+        }
+        
+        mutating func simulate() {
+            for index in 0..<plannedGames.count {
+                plannedGames[index].simulate()
+            }
         }
         
         mutating func addGameToSeries() {
@@ -252,6 +314,10 @@ extension Season {
         var shouldCreateUmpireGame: Bool = false
         // TODO: - Add date at a later time
         
+        var isGameOver: Bool {
+            game?.isGameOver == true
+        }
+        
         public mutating func simulate() {
             guard !shouldCreateUmpireGame else { fatalError() }
             var game: Game = .init(homeTeam: homeTeam, awayTeam: awayTeam)
@@ -265,6 +331,14 @@ extension Season {
                 awayTeam: awayTeam,
                 umpireGame: shouldCreateUmpireGame ? .some(.new) : .none
             )
+        }
+        
+        func contains(team: Team) -> Bool {
+            team == homeTeam || team == awayTeam
+        }
+        
+        func contains(_ team1: Team, _ team2: Team) -> Bool {
+            return contains(team: team1) && contains(team: team2)
         }
     }
 }

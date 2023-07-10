@@ -75,6 +75,10 @@ public struct Team: Equatable, Identifiable, Hashable, Codable {
     public func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
+    
+    public static func isSameTeam(_ team1: Self, _ team2: Self) -> Bool {
+        team1.id == team2.id
+    }
 }
 
 public enum League: String, Codable {
