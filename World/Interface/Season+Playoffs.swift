@@ -7,8 +7,6 @@
 
 import Foundation
 
-// TODO: - Generate league round + WS; refactor and add tests
-
 extension Season {
     struct Record: Comparable, Equatable {
         var wins: Int
