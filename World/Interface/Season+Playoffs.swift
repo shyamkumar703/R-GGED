@@ -60,8 +60,6 @@ extension Season {
         // 4 vs 5 matchup
         playoffSchedule.append(.init(homeTeam: nationalLeaguePlayoffTeams[4], awayTeam: nationalLeaguePlayoffTeams[5], games: 3, playoffSeries: .wildCard))
         playoffSchedule.append(.init(homeTeam: americanLeaguePlayoffTeams[4], awayTeam: americanLeaguePlayoffTeams[5], games: 3, playoffSeries: .wildCard))
-        
-        playoffSchedule.forEach({ print("\($0.homeTeam) @ \($0.awayTeam)") })
     }
     
     private mutating func generateDivisionalRoundOfPlayoffs() {
