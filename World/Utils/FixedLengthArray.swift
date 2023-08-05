@@ -21,6 +21,10 @@ public struct FixedLengthArray<Element: Codable & Equatable>: Codable, Equatable
             .map({ $0.element })
     }
     
+    public var count: Int {
+        elements.count
+    }
+    
     public init(_ elements: Element...) {
         self._elements = elements.map({ .init(element: $0) })
     }
@@ -57,6 +61,6 @@ extension FixedLengthArray where Element: Identifiable {
             fatalError("Element with id \(element.id) not in array")
         }
         
-        self.remove(index)
+        self.remove(index + 1) // 1-indexed
     }
 }

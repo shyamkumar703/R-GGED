@@ -24,6 +24,16 @@ public struct Season: Cacheable, Equatable, Identifiable {
         schedule.filter({ !$0.isSeriesOver }).count == 0
     }
     
+    public var playoffRoundIsOver: Bool {
+        playoffSchedule.filter({ !$0.isSeriesOver }).count == 0
+    }
+    
+    public var worldSeriesWinner: Team? {
+        guard playoffSchedule.last?.playoffSeries == .world,
+              playoffRoundIsOver else { return nil }
+        return playoffSchedule.last?.seriesWinner
+    }
+    
     public init(
         teams: [Team] = [],
         year: Int = 2023,
@@ -226,7 +236,7 @@ extension Season {
             return homeTeamWins > awayTeamWins ? homeTeam : awayTeam
         }
         
-        init(id: UUID = UUID(), homeTeam: Team, awayTeam: Team, games: Int = 3) {
+        init(id: UUID = UUID(), homeTeam: Team, awayTeam: Team, games: Int = 3, playoffSeries: PlayoffSeries? = nil) {
             guard homeTeam != awayTeam else {
                 fatalError("A series cannot be constructed with the same home and away team")
             }
@@ -240,6 +250,7 @@ extension Season {
                     seriesId: id
                 )
             })
+            self.playoffSeries = playoffSeries
         }
         
         mutating func simulate() {
@@ -281,15 +292,10 @@ extension Season {
         }
         
         public enum PlayoffSeries: Codable, Equatable {
-            case wildCard(WildCardSeries)
+            case wildCard
             case divisional
             case league
             case world
-        }
-        
-        public enum WildCardSeries: Codable, Equatable {
-            case fiveAtFour
-            case sixAtThree
         }
     }
     

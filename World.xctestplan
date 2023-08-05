@@ -24,7 +24,7 @@
     "environmentVariableEntries" : [
       {
         "key" : "shouldRunLongTests",
-        "value" : "false"
+        "value" : "true"
       }
     ]
   },

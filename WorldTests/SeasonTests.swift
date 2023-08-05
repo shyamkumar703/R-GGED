@@ -128,7 +128,7 @@ final class SeasonTests: XCTestCase {
     }
     
     // MARK: - Playoff tests
-    func testGetPlayoffTeams_GeneratesSixTeamsForEachLeague() {
+    func testGetPlayoffTeams_GeneratesSixUniqueTeamsForEachLeague() {
         guard let shouldRun = ProcessInfo.processInfo.environment["shouldRunLongTests"],
               shouldRun == "true" else {
             // skip long-running test in this case
@@ -140,7 +140,65 @@ final class SeasonTests: XCTestCase {
             sut.schedule[index].simulate()
         }
         
-        XCTAssertEqual(sut.getPlayoffTeams(for: .national).count, 6)
-        XCTAssertEqual(sut.getPlayoffTeams(for: .american).count, 6)
+        let nationalLeaguePlayoffTeams = sut.getPlayoffTeams(for: .national)
+        let americanLeaguePlayoffTeams = sut.getPlayoffTeams(for: .american)
+        XCTAssertEqual(nationalLeaguePlayoffTeams.count, 6)
+        XCTAssertEqual(americanLeaguePlayoffTeams.count, 6)
+        XCTAssertEqual(Set(nationalLeaguePlayoffTeams).count, 6)
+        XCTAssertEqual(Set(nationalLeaguePlayoffTeams).count, 6)
+        
+        XCTAssert(nationalLeaguePlayoffTeams.filter({ $0.league != .national }).isEmpty)
+        XCTAssert(americanLeaguePlayoffTeams.filter({ $0.league != .american }).isEmpty)
+    }
+    
+    func testPlayoffs_WorksAsExpected() {
+        guard let shouldRun = ProcessInfo.processInfo.environment["shouldRunLongTests"],
+              shouldRun == "true" else {
+            // skip long-running test in this case
+            return
+        }
+        
+        var sut = Season(umpireGamesToGenerate: 0)
+        for index in 0..<sut.schedule.count {
+            sut.schedule[index].simulate()
+        }
+        
+        XCTAssertTrue(sut.generateNextRoundOfPlayoffs())
+        
+        for index in 0..<sut.playoffSchedule.count {
+            sut.playoffSchedule[index].simulate()
+        }
+        
+        XCTAssert(sut.playoffRoundIsOver)
+        
+        XCTAssertTrue(sut.generateNextRoundOfPlayoffs())
+        
+        for index in 0..<sut.playoffSchedule.count {
+            sut.playoffSchedule[index].simulate()
+        }
+        
+        XCTAssert(sut.playoffRoundIsOver)
+        
+        XCTAssertTrue(sut.generateNextRoundOfPlayoffs())
+        
+        XCTAssertEqual(sut.nationalLeaguePlayoffTeams.count, 2)
+        XCTAssertEqual(sut.americanLeaguePlayoffTeams.count, 2)
+        
+        for index in 0..<sut.playoffSchedule.count {
+            sut.playoffSchedule[index].simulate()
+        }
+        
+        XCTAssertTrue(sut.generateNextRoundOfPlayoffs())
+        
+        XCTAssertEqual(sut.nationalLeaguePlayoffTeams.count, 1)
+        XCTAssertEqual(sut.americanLeaguePlayoffTeams.count, 1)
+        
+        for index in 0..<sut.playoffSchedule.count {
+            sut.playoffSchedule[index].simulate()
+        }
+        
+        XCTAssertNotNil(sut.worldSeriesWinner)
+        
+        XCTAssertFalse(sut.generateNextRoundOfPlayoffs())
     }
 }
