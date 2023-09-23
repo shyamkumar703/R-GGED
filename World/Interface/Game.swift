@@ -494,8 +494,13 @@ extension Game {
          |           |
          · - - - - - ·
          */
-        var x: Double
-        var y: Double
+        public var x: Double
+        public var y: Double
+        
+        public init(x: Double, y: Double) {
+            self.x = x
+            self.y = y
+        }
         
         public enum Call {
             case strike
@@ -651,6 +656,33 @@ extension Game {
         .init(homeTeam: .empty, awayTeam: .empty)
     }
     
+    public static var fullMock: Self {
+//        .init(
+//            homeTeam: Season.teams[0],
+//            awayTeam: Season.teams[22],
+//            homeTeamScore: 3,
+//            awayTeamScore: 2,
+//            halfInning: .top,
+//            inning: 3,
+//            outs: 2,
+//            firstBase: .empty,
+//            secondBase: .empty,
+//            thirdBase: .empty,
+//            currentBalls: 3,
+//            currentStrikes: 2,
+//            umpireGame: .some(
+//                .init(
+//                    homeTeamGrade: 80,
+//                    awayTeamGrade: 60,
+//                    grade: 70
+//                )
+//            ),
+//            generateRandomPitch: generateRandomPitchLive,
+//            batterResult: batterResultLive
+//        )
+        .init(homeTeam: Season.teams[0], awayTeam: Season.teams[22], umpireGame: .some(.new), batterResult: { _, _ in nil })
+    }
+    
     static func mockFullCount(battingOrder: [Player], generateRandomPitch: @escaping () -> Pitch = generateRandomPitchLive) -> Self {
         .init(
             homeTeam: .empty,
@@ -730,6 +762,7 @@ extension Game {
 
 // MARK: - Live
 extension Game {
+    // TODO: - Take pitcher stats into account
     static func generateRandomPitchLive() -> Pitch {
         let randomX = Double.random(in: -2...8)
         let randomY = Double.random(in: -10...2)

@@ -9,15 +9,15 @@ public struct Team: Equatable, Identifiable, Hashable, Codable {
     public var id: String {
         teamName
     }
-    var teamName: String
-    var teamAbbreviation: String
-    var teamColorPrimary: String // hex
-    var teamColorSecondary: String // hex
-    var league: League
-    var division: Division
-    var roster: [Player]
-    var battingOrder: [Player]
-    var pitchingRotation: NonEmptyCircularArray<Player>
+    public var teamName: String
+    public var teamAbbreviation: String
+    public var teamColorPrimary: String // hex
+    public var teamColorSecondary: String // hex
+    public var league: League
+    public var division: Division
+    public var roster: [Player]
+    public var battingOrder: [Player]
+    public var pitchingRotation: NonEmptyCircularArray<Player>
     
     public enum CodingKeys: String, CodingKey {
         case teamName

@@ -18,6 +18,7 @@ extension Season {
         }
     }
     
+    // TODO: - Add umpire games to playoffs
     @discardableResult public mutating func generateNextRoundOfPlayoffs() -> Bool {
         guard isSeasonOver && playoffRoundIsOver else { return false }
         guard playoffSchedule.last?.playoffSeries != .world else { return false }

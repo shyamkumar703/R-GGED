@@ -6,12 +6,13 @@
 //
 
 import SwiftUI
+import World
 
 @main
 struct R_GGEDApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(viewModel: .init(game: .fullMock))
         }
     }
 }

@@ -36,6 +36,10 @@
 		2D8E1A5A2A5C531200F118A9 /* Season+Playoffs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8E1A592A5C531200F118A9 /* Season+Playoffs.swift */; };
 		2D8E87A42A51023600A0214F /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8E87A32A51023600A0214F /* Constants.swift */; };
 		2DB06B2C2A51EB61008588D7 /* PlayerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB06B2B2A51EB61008588D7 /* PlayerTests.swift */; };
+		2DBBE15A2A80220100F3223F /* UIColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DBBE1592A80220100F3223F /* UIColor.swift */; };
+		2DBBE15C2A80221600F3223F /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DBBE15B2A80221600F3223F /* Color.swift */; };
+		2DBBE15E2A8028A000F3223F /* BasesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DBBE15D2A8028A000F3223F /* BasesView.swift */; };
+		2DBBE1602A8154AF00F3223F /* StrikeZoneView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DBBE15F2A8154AF00F3223F /* StrikeZoneView.swift */; };
 		2DE7085D2A52595B0097F623 /* SeasonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DE7085C2A52595B0097F623 /* SeasonTests.swift */; };
 		2DFE2B482A522B6800DD1D32 /* Season.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DFE2B472A522B6800DD1D32 /* Season.swift */; };
 /* End PBXBuildFile section */
@@ -124,6 +128,10 @@
 		2D8E1A592A5C531200F118A9 /* Season+Playoffs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Season+Playoffs.swift"; sourceTree = "<group>"; };
 		2D8E87A32A51023600A0214F /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		2DB06B2B2A51EB61008588D7 /* PlayerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerTests.swift; sourceTree = "<group>"; };
+		2DBBE1592A80220100F3223F /* UIColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColor.swift; sourceTree = "<group>"; };
+		2DBBE15B2A80221600F3223F /* Color.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Color.swift; sourceTree = "<group>"; };
+		2DBBE15D2A8028A000F3223F /* BasesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasesView.swift; sourceTree = "<group>"; };
+		2DBBE15F2A8154AF00F3223F /* StrikeZoneView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrikeZoneView.swift; sourceTree = "<group>"; };
 		2DD7A6CA2A50AB2C00305F55 /* World.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = World.xctestplan; sourceTree = "<group>"; };
 		2DE7085C2A52595B0097F623 /* SeasonTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeasonTests.swift; sourceTree = "<group>"; };
 		2DFE2B472A522B6800DD1D32 /* Season.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Season.swift; sourceTree = "<group>"; };
@@ -198,8 +206,11 @@
 		01C2A6C72A4F5C3A004F701D /* R!GGED */ = {
 			isa = PBXGroup;
 			children = (
+				2DBBE1582A8021F500F3223F /* Utils */,
 				01C2A6C82A4F5C3A004F701D /* R_GGEDApp.swift */,
 				01C2A6CA2A4F5C3A004F701D /* ContentView.swift */,
+				2DBBE15F2A8154AF00F3223F /* StrikeZoneView.swift */,
+				2DBBE15D2A8028A000F3223F /* BasesView.swift */,
 				01C2A6CC2A4F5C3B004F701D /* Assets.xcassets */,
 				01C2A6CE2A4F5C3B004F701D /* Preview Content */,
 			);
@@ -278,6 +289,15 @@
 				01C2A71D2A4F6DDF004F701D /* NonEmptyCircularArray.swift */,
 				2D70AB2E2A59AB60005ACE62 /* Encodable.swift */,
 				2D8E1A572A5B979000F118A9 /* FixedLengthArray.swift */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
+		2DBBE1582A8021F500F3223F /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				2DBBE1592A80220100F3223F /* UIColor.swift */,
+				2DBBE15B2A80221600F3223F /* Color.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -485,6 +505,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				01C2A6CB2A4F5C3A004F701D /* ContentView.swift in Sources */,
+				2DBBE15E2A8028A000F3223F /* BasesView.swift in Sources */,
+				2DBBE1602A8154AF00F3223F /* StrikeZoneView.swift in Sources */,
+				2DBBE15C2A80221600F3223F /* Color.swift in Sources */,
+				2DBBE15A2A80220100F3223F /* UIColor.swift in Sources */,
 				01C2A6C92A4F5C3A004F701D /* R_GGEDApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
